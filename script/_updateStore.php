@@ -16,6 +16,7 @@ $success = 0;
 $error = [];
 $name    = $_REQUEST['e_Store_name'];
 $id    = $_REQUEST['editStoreid'];
+$client   = $_REQUEST['e_client'];
 
 
 
@@ -39,11 +40,18 @@ if($v->passes()) {
   if($result > 0){
     $success = 1;
   }
+if($client > 0){
+  $sql1 = "update stores set client_id = ? where id=? ";
+  setData($con,$sql1,[$client,$id]);
+  $sql1 = "update orders set client_id = ? where store_id=? ";
+  $res = setData($con,$sql1,[$client,$id]);
+  $success = 1;
+}
 }else{
   $error = [
            'id'=> implode($v->errors()->get('id')),
            'name'=> implode($v->errors()->get('name')),
            ];
 }
-echo json_encode(['success'=>$success, 'error'=>$error]);
+echo json_encode([$res,'success'=>$success, 'error'=>$error]);
 ?>

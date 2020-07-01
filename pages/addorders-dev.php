@@ -1,7 +1,7 @@
 <?php
 if(file_exists("script/_access.php")){
   require_once("script/_access.php");
-  access([1,2,5,6]);
+  access([1,2,3,5,6]);
 }
 ?>
 <?
@@ -1072,7 +1072,11 @@ function addtowns(){
        if(res.success == 1){
          $("#kt_form input").val("");
          Toast.success('تم الاضافة');
-         getTowns($("[town='town']").last(),$("[city='city']").last().val());
+          if($("#by").val() == 'city'){
+             getTowns($("[town='town']").last(),$("#maincity").last().val());
+          }else{
+              getTowns($("[town='town']").last(),$("[city='city']").last().val());
+          }
        }else{
            $("#town_name_err").text(res.error["town_err"]);
            $("#town_city_err").text(res.error["city_err"]);

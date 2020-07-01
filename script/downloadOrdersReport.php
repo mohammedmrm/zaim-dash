@@ -1,5 +1,5 @@
 <?php
-ini_set('max_execution_time', 1000);
+ini_set('max_execution_time', 20000);
 ob_start();
 session_start();
 error_reporting(0);
@@ -13,14 +13,19 @@ require("../config.php");
 $branch = $_REQUEST['branch'];
 $to_branch = $_REQUEST['to_branch'];
 $city = $_REQUEST['city'];
+$town = $_REQUEST['town'];
 $customer = $_REQUEST['customer'];
 $order = $_REQUEST['order_no'];
 $client= $_REQUEST['client'];
 $store= $_REQUEST['store'];
+$storageStatus = $_REQUEST['storageStatus'];
+$callcenter = $_REQUEST['callcenter'];
+$storage = $_REQUEST['storage'];
 $driver = $_REQUEST['driver'];
 $invoice= $_REQUEST['invoice'];
 $status = $_REQUEST['orderStatus'];
 $repated = $_REQUEST['repated'];
+$confirm = $_REQUEST['confirm'];
 $start = trim($_REQUEST['start']);
 $end = trim($_REQUEST['end']);
 
@@ -52,6 +57,9 @@ if($reportType == 2){
      background-color: #FFCCFF;
      color:#111;
     }
+  .unc{
+    background-color: #FFCC33;
+  }
   </style>';
 }else if($reportType == 3){
   $style='
@@ -65,6 +73,9 @@ if($reportType == 2){
      background-color: #FFFFCC;
      color:#111;
     }
+  .unc{
+    background-color: #FFCC33;
+  }
   </style>';
 }else{
   $style='
@@ -78,14 +89,21 @@ if($reportType == 2){
      background-color: #ddd;
      color:#111;
     }
+    .unc{
+      background-color: #FFCC33;
+    }
   </style>';
 }
 $total = [];
 $money_status = trim($_REQUEST['money_status']);
 if(!empty($end)) {
-   $end =date('Y-m-d', strtotime($end. ' + 1 day'));
+   $end .=" 23:59:59";
 }else{
-  $end =date('Y-m-d', strtotime(' + 1 day'));
+   $end =date('Y-m-d', strtotime(' + 1 day'));
+   $end .=" 23:59:59";
+}
+if(!empty($start)) {
+   $start .=" 00:00:00";
 }
 
 try{
@@ -99,7 +117,7 @@ try{
               HAVING COUNT(orders.id) > 1
             ) b on b.order_no = orders.order_no
            ";
-  $query = "select orders.*,date_format(orders.date,'%Y-%m-%d') as date,
+  $query = "select orders.*,date_format(orders.date,'%Y-%m-%d') as dat, order_status.status as status_name,
             clients.name as client_name,clients.phone as client_phone,stores.name as store_name,
             cites.name as city,towns.name as town,to_branch.name as to_branch_name, branches.name as branch_name,staff.name as driver_name
             from orders left join
@@ -107,6 +125,7 @@ try{
             left join cites on  cites.id = orders.to_city
             left join towns on  towns.id = orders.to_town
             left join stores on  stores.id = orders.store_id
+            left join order_status on  orders.order_status_id = order_status.id
             left join branches on  branches.id = orders.from_branch
             left join branches as to_branch on  to_branch.id = orders.to_branch
             left join staff on  staff.id = orders.driver_id
@@ -116,9 +135,16 @@ try{
               HAVING COUNT(orders.id) > 1
             ) b on b.order_no = orders.order_no
             ";
-   $where = "where";
-   $filter = " and orders.confirm = 1";
-
+    if($_SESSION['role'] == 1 || $_SESSION['role'] == 5 || $_SESSION['role'] == 9){
+       $where = "where";
+    }else{
+       $where = "where (from_branch = '".$_SESSION['user_details']['branch_id']."' or to_branch = '".$_SESSION['user_details']['branch_id']."') and ";
+    }
+   if($confirm == 1 || $confirm == 4){
+    $filter .= " and orders.confirm ='".$confirm."'";
+   }else{
+    $filter .= " and (orders.confirm =1 or orders.confirm =4)";
+   }
   if($branch >= 1){
    $filter .= " and from_branch =".$branch;
   }
@@ -145,6 +171,9 @@ try{
   if($city >= 1){
     $filter .= " and to_city=".$city;
   }
+  if($town >= 1){
+    $filter .= " and to_town=".$town;
+  }
   if(($money_status == 1 || $money_status == 0) && $money_status !=""){
     $filter .= " and money_status='".$money_status."'";
   }
@@ -154,20 +183,49 @@ try{
   if($store>= 1){
     $filter .= " and store_id=".$store;
   }
+  if($storageStatus == 1){
+   $filter .= " and orders.invoice_id = 0";
+  }else if($storageStatus == 2){
+   $filter .= " and orders.invoice_id <> 0 and invoice.invoice_status = 0";
+  }else if($storageStatus == 3){
+   $filter .= " and orders.invoice_id <> 0 and invoice.invoice_status = 1";
+  }
+
+  if($callcenter == 1){
+   $filter .= " and orders.callcenter_id <> 0";
+  }else if($callcenter == 2){
+    $filter .= " and orders.callcenter_id = 0";
+  }
+
+
+  if($storage > 0){
+   $filter .= " and orders.storage_id =".$storage;
+  }
+  
   if(!empty($customer)){
     $filter .= " and (customer_name like '%".$customer."%' or
                       customer_phone like '%".$customer."%')";
   }
   if(!empty($order)){
-    $filter .= " and orders.order_no like '%".$order."%'";
+    $filter .= " and orders.order_no = '".$order."'";
   }
-  if($status >= 1){
-    $filter .= " and order_status_id =".$status;
+
+  ///-----------------status
+  $s = "";
+  if(count($status) > 0){
+    foreach($status as $stat){
+      if($stat > 0){
+        $s .= " or order_status_id=".$stat;
+      }
+    }
   }
-  if($status == 4 || $status == 9){
-    $filter .= " or order_status_id = 6";
+  $s = preg_replace('/^ or/', '', $s);
+   if($s != ""){
+    $s = " and (".$s." )";
+    $filter .= $s;
   }
-  function validateDate($date, $format = 'Y-m-d')
+  //---------------------end of status
+  function validateDate($date, $format = 'Y-m-d H:i:s')
     {
         $d = DateTime::createFromFormat($format, $date);
         return $d && $d->format($format) == $date;
@@ -214,12 +272,15 @@ try{
             }
             $data[$i]['dev_price'] = $dev_p;
             $data[$i]['client_price'] = ($data[$i]['new_price'] -  $dev_p) + $data[$i]['discount'];
-
+            $bg = "";
+            if($data[$i]['confirm'] > 1){
+                 $bg = "unc";
+            }
     $hcontent .=
-     '<tr>
+     '<tr class="'.$bg.'">
        <td align="center" width="'.(48+$fontSize).'">'.($i+1).'</td>
        <td align="center">'.$data[$i]['order_no'].'</td>
-       <td align="center">'.$data[$i]['date'].'</td>
+       <td align="center">'.$data[$i]['dat'].'</td>
        <td align="center">'.$data[$i]['store_name'].'</td>
        <td align="center" style="white-space: nowrap;">'.phone_number_format($data[$i]['customer_phone']).'</td>
        <td align="center">'.$data[$i]['city'].'-'.$data[$i]['town'].' - '.$data[$i]['address'].'</td>
@@ -254,16 +315,20 @@ try{
             }
             $data[$i]['dev_price'] = $dev_p;
             $data[$i]['client_price'] = ($data[$i]['new_price'] -  $dev_p) + $data[$i]['discount'];
-
+            $bg = "";
+            if($data[$i]['confirm'] > 1){
+                 $bg = "unc";
+            }
     $hcontent .=
-     '<tr>
+     '<tr class="'.$bg.'">
        <td align="center" width="'.(48+$fontSize).'">'.($i+1).'</td>
        <td align="center">'.$data[$i]['order_no'].'</td>
-       <td align="center">'.$data[$i]['date'].'</td>
+       <td align="center">'.$data[$i]['dat'].'</td>
        <td align="center">'.$data[$i]['store_name'].'</td>
        <td align="center">'.phone_number_format($data[$i]['customer_phone']).'</td>
        <td align="center">'.$data[$i]['city'].' - '.$data[$i]['town'].' - '.$data[$i]['address'].'</td>
        <td align="center">'.number_format($data[$i]['price']).'</td>
+       <td align="center">'.$data[$i]['status_name'].'</td>
        <td align="center">'.$data[$i]['note'].'</td>
      </tr>';
 
@@ -294,12 +359,15 @@ try{
             }
             $data[$i]['dev_price'] = $dev_p;
             $data[$i]['client_price'] = ($data[$i]['new_price'] -  $dev_p) + $data[$i]['discount'];
-
+            $bg = "";
+            if($data[$i]['confirm'] > 1){
+                $bg = "unc";
+            }
     $hcontent .=
-     '<tr>
+     '<tr class="'.$bg.'">
        <td width="60"  align="center">'.($i+1).'</td>
        <td align="center">'.$data[$i]['order_no'].'</td>
-       <td width="110" align="center">'.$data[$i]['date'].'</td>
+       <td width="110" align="center">'.$data[$i]['dat'].'</td>
        <td align="center" width="110">'.$data[$i]['store_name'].'</td>
 
        <td width="130" align="center">'.phone_number_format($data[$i]['customer_phone']).'</td>
@@ -463,7 +531,7 @@ $htmlpersian = '<table border="1" class="table" cellpadding="'.$space.'">
                                         <th>رقم الوصل</th>
 										<th style="white-space: nowrap;">تاريخ الادخال</th>
 										<th >اسم البيح</th>
-                                        
+
 										<th style="white-space: nowrap;">هاتف   المستلم</th>
 										<th>عنوان المستلم</th>
                                         <th >مبلغ الوصل</th>
@@ -486,6 +554,7 @@ $htmlpersian = '<table border="1" class="table" cellpadding="'.$space.'">
 										<th>عنوان المستلم</th>
                                         <th >مبلغ الوصل</th>
 										<th >حالة الطلب</th>
+										<th >ملاحظة</th>
 						   </tr>
       	            </thead>
                     <tbody id="ordersTable">'

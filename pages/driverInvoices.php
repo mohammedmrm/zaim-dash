@@ -112,18 +112,23 @@ background-color: #FFFF99;
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>السائق:</label>
-            	<select onchange="getdriverInvoices()" data-show-subtext="true" data-live-search="true"  class="selectpicker form-control kt-input" id="driver" name="driver" data-col-index="7">
+            	<select onchange="" data-show-subtext="true" data-live-search="true"  class="selectpicker form-control kt-input" id="driver" name="driver" data-col-index="7">
             		<option value="">Select</option>
+            	</select>
+            </div>
+            <div class="col-lg-3 kt-margin-b-10-tablet-and-mobile">
+            	<label>حالة الطلبيات:</label>
+            	<select onchange="" title="اختر الحالة" data-live-search="true" data-show-subtext="true"  class="selectpicker form-control kt-input" id="status" name="status[]" multiple data-actions-box="true">
             	</select>
             </div>
             <div class="col-lg-3 kt-margin-b-10-tablet-and-mobile">
             <label>الفترة الزمنية :</label>
             <div class="input-daterange input-group" id="kt_datepicker">
-  				<input value="<?php echo date('Y-m-d', strtotime('-7 days'));?>" onchange="getdriverInvoices()" type="text" class="form-control kt-input" name="start" id="start" placeholder="من" data-col-index="5">
+  				<input value="<?php echo date('Y-m-d', strtotime('-7 days'));?>" onchange="" type="text" class="form-control kt-input" name="start" id="start" placeholder="من" data-col-index="5">
   				<div class="input-group-append">
   					<span class="input-group-text"><i class="la la-ellipsis-h"></i></span>
   				</div>
-  				<input onchange="getdriverInvoices()" type="text" class="form-control kt-input" name="end"  id="end" placeholder="الى" data-col-index="5">
+  				<input onchange="" type="text" class="form-control kt-input" name="end"  id="end" placeholder="الى" data-col-index="5">
           	</div>
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
@@ -132,7 +137,7 @@ background-color: #FFFF99;
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>بحث:</label><br />
-            	<button type="button" onclick="getdriverdriverInvoices();" type="text" class="btn btn-success" value="" placeholder="" data-col-index="0">بحث
+            	<button type="button" onclick="getdriverInvoices();" type="text" class="btn btn-success" value="" placeholder="" data-col-index="0">بحث
                     <span id="search"  role="status"></span>
                 </button>
             </div>
@@ -217,6 +222,41 @@ background-color: #FFFF99;
 <script type="text/javascript">
 $('#tb-orders').DataTable();
 $('#tb-invioces').DataTable();
+function getorderStatus(elem){
+$.ajax({
+  url:"script/_getorderStatus.php",
+  type:"POST",
+  success:function(res){
+   console.log(res);
+   elem.html("");
+   $.each(res.data,function(){
+     bg ="";
+     if(this.id == 4){
+       bg ="#9CDE7C";
+     }else if(this.id == 5){
+       bg ="#FFFFAC";
+     }else if(this.id == 9){
+       bg ="#F2A69B";
+     }else if(this.id == 4){
+       bg ="";
+     }else if(this.id == 4){
+       bg ="";
+     }
+     elem.append(
+       '<option style="background-color:'+bg+'" value="'+this.id+'">'+this.status +'</option>'
+     );
+     if(elem.attr('st') == 'st'){
+       getorders();
+     }
+    });
+    elem.selectpicker('refresh');
+    },
+   error:function(e){
+    console.log(e);
+  }
+});
+}
+getorderStatus($("#status"));
 function  getdriverInvoices(){
   $.ajax({
     url:"script/_getDriverDetails.php",
@@ -229,8 +269,10 @@ function  getdriverInvoices(){
        $("#driver_orders").html("");
        $("#driver_data").html("");
        $("#invoicesTable").html("");
+       $("#driver_orders").html("");
     },
     success:function(res){
+
       $("#section-to-print").removeClass('loading');
       console.log(res);
       content ="";
@@ -273,10 +315,10 @@ function  getdriverInvoices(){
           '</tr>'+
           '</tr>'+
             '<td>'+res.pay.orders+'</td>'+
-            '<td>'+Number(res.pay.income).toFixed(2)+'</td>'+
-            '<td>'+Number(res.pay.dev).toFixed(2)+'</td>'+
-            '<td>'+Number(res.pay.client_price).toFixed(2)+'</td>'+
-            '<td class="text-danger">'+Number(res.pay.driver_price).toFixed(2)+'</td>'+
+            '<td>'+formatMoney(res.pay.income)+'</td>'+
+            '<td>'+formatMoney(res.pay.dev)+'</td>'+
+            '<td>'+formatMoney(res.pay.client_price)+'</td>'+
+            '<td class="text-danger">'+formatMoney(res.pay.driver_price)+'</td>'+
             '<td><button onclick="makeDriverInvoice()" type="button" class="btn btn-success">انشاء كشف</button></td>'+
           '</tr>'+
         '</table>'
@@ -314,7 +356,7 @@ function  getdriverInvoices(){
         "sLengthMenu": "عرض_MENU_سجل",
         "sSearch": "بحث:"
       },
-
+      "order": [[ 1, "desc" ]],
       });
     },
     error:function(e){
@@ -334,6 +376,7 @@ function makeDriverInvoice() {
             },
             success:function(res){
             $("#driver_data").removeClass('loading');
+            console.log(res);
                   if(res.success == 1){
                     getdriverInvoices();
                   }else{

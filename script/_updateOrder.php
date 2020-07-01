@@ -28,7 +28,7 @@ $v->addRule('isPhoneNumber', function($value, $input, $args) {
 $v->addRuleMessage('isPrice', 'المبلغ غير صحيح');
 
 $v->addRule('isPrice', function($value, $input, $args) {
-  if(preg_match("/^(0|[1-9]\d*)(\.\d{2})?$/",$value) || empty($value)){
+  if(preg_match("/^(0|\-\d*|\d*)(\.\d{2})?$/",$value)){
     $x=(bool) 1;
   }
   return   $x;
@@ -62,6 +62,7 @@ $order_price = $_REQUEST['e_price'];
 $order_iprice= $_REQUEST['e_iprice'];
 
 $branch = $_REQUEST['e_branch'];
+$client = $_REQUEST['e_client'];
 $store = $_REQUEST['e_store'];
 $client_phone = $_REQUEST['e_client_phone'];
 
@@ -88,16 +89,19 @@ $v->validate([
     'qty'           => [$qty,'int'],
     'order_price'   => [$order_price,   "isPrice"],
     'order_iprice'  => [$order_iprice,   "isPrice"],
-    'branch_from'   => [$branch,  'required|int'],
-    'store'         => [$store,  'required|int'],
+    'branch_from'   => [$branch,  'int'],
+    'client'        => [$client,  'int'],
+    'store'         => [$store,  'int'],
     'client_phone'  => [$client_phone,  'isPhoneNumber'],
     'customer_phone'=> [$customer_phone,'required|isPhoneNumber'],
-    'city'          => [$city_to,  'required|int'],
-    'town'          => [$town_to,  'required|int'],
+    'city'          => [$city_to,  'int'],
+    'town'          => [$town_to,  'int'],
     'branch_to'     => [$branch_to,'int'],
     'order_note'    => [$order_note,'max(250)'],
     'customer_name' => [$customer_name,'max(200)'],
 ]);
+
+
 $sql ="select * from orders where id = ?";
 $res = setData($con,$sql,[$id]);
 if($_SESSION['user_details']['role_id'] == 1 ||
@@ -108,6 +112,8 @@ if($_SESSION['user_details']['role_id'] == 1 ||
 }else{
  $premission = 0;
 }
+
+
 if($v->passes() && $date_err =="" && $premission) {
 
   $sql = 'update orders set order_no="'.$number.'"';
@@ -130,14 +136,17 @@ if($v->passes() && $date_err =="" && $premission) {
   if(!empty($town_to) && $town_to > 0){
     $up .= ' , to_town='.$town_to;
   }
-  if(!empty($order_price) && $order_price > 0){
+  if(!empty($order_price)){
     $up .= ' , price="'.$order_price.'"';
   }
-  if(!empty($order_iprice) && $order_iprice > 0){
+  if(!empty($order_iprice)){
     $up .= ' , new_price="'.$order_iprice.'"';
   }
   if(!empty($store) && $store > 0){
     $up .= ' , store_id="'.$store.'"';
+  }
+  if(!empty($client) && $client > 0){
+    $up .= ' , client_id="'.$client.'"';
   }
   if(!empty($customer_phone)){
     $up .= ' , customer_phone="'.$customer_phone.'"';
@@ -151,7 +160,7 @@ if($v->passes() && $date_err =="" && $premission) {
   if(!empty($date)){
     $up .= ' , date="'.$date.'"';
   }
-  $where = " where id =".$id;
+  $where = " where id =".$id."  and invoice_id=0 and driver_invoice_id=0";
   $sql .= $up.$where;
  $result = setData($con,$sql);
 if($result > 0){
@@ -169,6 +178,7 @@ $error = [
            'order_iprice'=>implode($v->errors()->get('order_iprice')),
            'branch_from'=>implode($v->errors()->get('branch_from')),
            'store'=>implode($v->errors()->get('store')),
+           'client'=>implode($v->errors()->get('client')),
            'client_phone'=>implode($v->errors()->get('client_phone')),
            'customer_name'=>implode($v->errors()->get('customer_name')),
            'customer_phone'=>implode($v->errors()->get('customer_phone')),
@@ -180,5 +190,5 @@ $error = [
            'premission'=>$premission
            ];
 }
-echo json_encode(['success'=>$success, 'error'=>$error,$_POST]);
+echo json_encode([$sql,'success'=>$success, 'error'=>$error,$_POST]);
 ?>

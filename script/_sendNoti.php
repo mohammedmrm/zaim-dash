@@ -3,13 +3,13 @@
   global $con;
   foreach($orders as $order){
             $sql = "select * from orders where orders.id =  ?";
-            $res =getData($con,$sql,[$order]);
-            if(count($res) > 0){
+            $result =getData($con,$sql,[$order]);
+            if(count($result) > 0){
               $sql = "insert into notification (title,body,for_client,staff_id,client_id,order_id)
               values(?,?,?,?,?,?)";
-              $res = setData($con,$sql,[$title,$body,0,$res[0]['manager_id'],0,$order]);
-              $res = setData($con,$sql,[$title,$body,0,$res[0]['driver_id'],0,$order]);
-              $res = setData($con,$sql,[$title,$body,1,0,$res[0]['client_id'],$order]);
+              $res = setData($con,$sql,[$title,$body,0,$result[0]['manager_id'],0,$order]);
+              $res = setData($con,$sql,[$title,$body,0,$result[0]['driver_id'],0,$order]);
+              $res = setData($con,$sql,[$title,$body,1,0,$result[0]['client_id'],$order]);
             }
      }
      $apikey = 'AAAAX39_76o:APA91bEwobrGZyJSJYoNYPQPa-UgPXsM1kF-r-LiLMcMv8ja-bN4s3q4VRI9_zmpV2XgLwUrWekJa1l1rhOSLJBbdAZeGD2xS3gNiFJpTyWYBEw5Yhz-vDTVyqyxUXD9HrZohdX0oV1E';

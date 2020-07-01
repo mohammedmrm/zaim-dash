@@ -55,6 +55,7 @@ table.dataTable tr th.select-checkbox.selected::after {
 	 							<th>ID</th>
 								<th>المدينة</th>
 								<th>المنطقة</th>
+								<th>مندوب المنطقة</th>
 								<th>مركز؟</th>
 								<th>تعديل</th>
                             </tr>
@@ -66,6 +67,7 @@ table.dataTable tr th.select-checkbox.selected::after {
 	 							<th>ID</th>
 								<th>المدينة</th>
 								<th>المنطقة</th>
+								<th>مندوب المنطقة</th>
 								<th>مركز؟</th>
 								<th>تعديل</th>
 
@@ -102,6 +104,7 @@ $.ajax({
             '<td>'+this.id+'</td>'+
             '<td>'+this.city+'</td>'+
             '<td>'+this.town+'</td>'+
+            '<td>'+this.driver_name+'</td>'+
             '<td>'+this.center+'</td>'+
             '<td>'+
                 '<button class="btn btn-clean btn-link" onclick="edittowns('+this.id+')" data-toggle="modal" data-target="#edittownsModal"><span class="flaticon-edit"></sapn></button>'+
@@ -111,18 +114,10 @@ $.ajax({
        '</tr>');
      });
      var myTable= $('#tb-towns').DataTable({
-     columns:[
-    //"dummy" configuration
-        { visible: true }, //col 1
-        { visible: true }, //col 2
-        { visible: true }, //col 3
-        { visible: true }, //col 4
-        { visible: true }, //col 5
-        ],
         className: 'select-checkbox',
         targets: 0,
         "oLanguage": {
-        "sLengthMenu": "عرض_MENU_سجل",
+        "sLengthMenu": "عرض _MENU_ سجل",
         "sSearch": "بحث:" ,
         select: {
         style: 'os',

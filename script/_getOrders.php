@@ -8,6 +8,7 @@ require("dbconnection.php");
 $branch = $_REQUEST['branch'];
 $to_branch = $_REQUEST['to_branch'];
 $city = $_REQUEST['city'];
+$town = $_REQUEST['town'];
 $customer = $_REQUEST['customer'];
 $order = $_REQUEST['order_no'];
 $client= $_REQUEST['client'];
@@ -18,21 +19,24 @@ $end = trim($_REQUEST['end']);
 $limit = trim($_REQUEST['limit']);
 $page = trim($_REQUEST['p']);
 $money_status = trim($_REQUEST['money_status']);
-if(empty($end)) {
-  $end = date('Y-m-d h:i:s', strtotime($end. ' + 1 day'));
+if(!empty($end)) {
+   $end .=" 23:59:59";
 }else{
+   $end =date('Y-m-d', strtotime(' + 1 day'));
    $end .=" 23:59:59";
 }
-$start .=" 00:00:00";
+if(!empty($start)) {
+   $start .=" 00:00:00";
+}
 try{
   $count = "select count(*) as count from orders ";
   $query = "select orders.*,DATE_FORMAT(orders.date,'%Y-%m-%d') as date,
             clients.name as client_name,clients.phone as client_phone,
             cites.name as city,towns.name as town,branches.name as branch_name,
             if(to_city = 1,
-                 if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount)),
-                 if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount))
-            )as dev_price
+                 if(order_status_id=9,0,if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount))),
+                 if(order_status_id=9,0,if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount)))
+            )as dev_price,if(order_status_id=9,0,discount) as discount
             from orders left join
             clients on clients.id = orders.client_id
             left join cites on  cites.id = orders.to_city
@@ -58,6 +62,9 @@ try{
   if(($money_status == 1 || $money_status == 0) && $money_status !=""){
     $filter .= " and money_status='".$money_status."'";
   }
+  if($town >= 1){
+    $filter .= " and to_town=".$town;
+  }  
   if($client >= 1){
     $filter .= " and orders.client_id=".$client;
   }
@@ -73,9 +80,9 @@ try{
   }
   ///-----------------status
   if($status == 4){
-    $filter .= " and (order_status_id =".$status." or order_status_id = 6)";
-  }else if($status == 9){
     $filter .= " and (order_status_id =".$status." or order_status_id = 6 or order_status_id = 5)";
+  }else if($status == 9){
+    $filter .= " and (order_status_id =".$status." or order_status_id =11 or order_status_id = 6 or order_status_id = 5)";
   }else  if($status >= 1){
     $filter .= " and order_status_id =".$status;
   }
@@ -121,5 +128,5 @@ if($success == '1'){
     }
   }
 }
-print_r(json_encode(array("success"=>$success,"data"=>$data,'pages'=>$pages,'page'=>$page+1)));
+echo (json_encode(array("success"=>$success,"data"=>$data,'pages'=>$pages,'page'=>$page+1)));
 ?>

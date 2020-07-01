@@ -17,10 +17,12 @@
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    max-height: 300px; 
+    max-height: 300px;
+    min-height: 200px;
 }
 .loading * {
  visibility: hidden;
+ display: none;
 }
 
 .ps__rail-x {

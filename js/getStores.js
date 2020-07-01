@@ -1,4 +1,4 @@
-function getStores(elem,client){
+﻿function getStores(elem,client){
    $.ajax({
      url:"script/_getStores.php",
      type:"POST",
@@ -9,7 +9,7 @@ function getStores(elem,client){
            '<option value="">... اختر ...</option>'
        );
        $.each(res.data,function(){
-         elem.append("<option value='"+this.id+"'><b>"+this.name+"</b>-"+this.client_name+"-"+this.client_phone+"</option>");
+         elem.append("<option value='"+this.id+"'><b>"+this.name+"</b>-"+this.client_name+"</option>");
        });
        console.log(res);
        elem.selectpicker('refresh');

@@ -2,12 +2,12 @@
 session_start();
 error_reporting(0);
 header('Content-Type: application/json');
-require("_access.php");
-access([1]);
+require_once("_access.php");
+access([1,5,2]);
 $id= $_REQUEST['id'];
 $success = 0;
 $msg="";
-require("dbconnection.php");
+require_once("dbconnection.php");
 
 use Violin\Violin;
 require_once('../validator/autoload.php');

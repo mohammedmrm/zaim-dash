@@ -158,6 +158,11 @@ getAllStores($("#getAllStoresTable"));
 			<form class="kt-form" id="editStoreForm">
 				<div class="kt-portlet__body">
 					<div class="form-group">
+						<label>العميل:</label>
+						<select type="name" id="e_client" name="e_client" class="selectpicker form-control" data-live-search="true"></select>
+						<span class="form-text  text-danger" id="e_client_err"></span>
+					</div>
+					<div class="form-group">
 						<label>الاسم البيج:</label>
 						<input type="name" id="e_Store_name" name="e_Store_name" class="form-control"  placeholder="">
 						<span class="form-text  text-danger" id="e_Store_name_err"></span>
@@ -184,6 +189,28 @@ getAllStores($("#getAllStoresTable"));
 <script type="text/javascript" src="js/getManagers.js"></script>
 <script type="text/javascript" src="js/getBraches.js"></script>
 <script>
+function getAllClient(ele){
+   $.ajax({
+     url:"script/_getClientsAll.php",
+     type:"POST",
+     success:function(res){
+       ele.html("");
+       ele.append(
+           '<option value="">... اختر ...</option>'
+       );
+       $.each(res.data,function(){
+         ele.append("<option value='"+this.id+"'>"+this.name+"-"+this.phone+"</option>");
+       });
+       console.log(res);
+       ele.selectpicker('refresh');
+     },
+     error:function(e){
+        ele.append("<option value='' class='bg-danger'>خطأ اتصل بمصمم النظام</option>");
+        console.log(e);
+     }
+   });
+}
+getAllClient($('#e_client'));
 function editStore(id){
   $(".text-danger").text("");
   $("#editStoreid").val(id);
@@ -198,7 +225,10 @@ function editStore(id){
       if(res.success == 1){
         $.each(res.data,function(){
           $('#e_Store_name').val(this.name);
+          $('#e_client').val(this.client_id);
+          $('#e_client').selectpicker('val',this.client_id);
         });
+        $('.selectpicker').selectpicker('refresh');
       }
       console.log(res);
     },
@@ -382,26 +412,6 @@ function deleteStore(id){
   });
 }
 
-function getAllClient(ele){
-   $.ajax({
-     url:"script/_getClientsAll.php",
-     type:"POST",
-     success:function(res){
-       ele.html("");
-       ele.append(
-           '<option value="">... اختر ...</option>'
-       );
-       $.each(res.data,function(){
-         ele.append("<option value='"+this.id+"'>"+this.name+"-"+this.phone+"</option>");
-       });
-       console.log(res);
-       ele.selectpicker('refresh');
-     },
-     error:function(e){
-        ele.append("<option value='' class='bg-danger'>خطأ اتصل بمصمم النظام</option>");
-        console.log(e);
-     }
-   });
-}
+
 getAllClient($("#client"));
  </script>

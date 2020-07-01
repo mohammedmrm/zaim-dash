@@ -1,7 +1,7 @@
 <?php
 if(file_exists("script/_access.php")){
   require_once("script/_access.php");
-  access([1,2,5,6]);
+  access([1,2,3,5,6]);
 }
 ?>
 <?
@@ -146,16 +146,6 @@ include("config.php");
 				<input type="text" class="form-control" id="customer_name1" name="customer_name[]" value="">
 				<span id="customer_name_err1" class="form-text text-danger"></span>
 			</div>-->
-            <div class="form-group col-lg-2">
-				<label>المبلغ الكلي</label>
-				<input   price="price" onkeyup="CurrencyFormatted($(this),$(this).val())" type="text" class="form-control sp" id="order" name="order_price[]" placeholder="المبلغ" value="">
-				<span id="order_price_err1" class="form-text text-danger"></span>
-			</div>
-            <div class="form-group col-lg-2">
-            	<label>رقم الوصل:</label>
-            	<input  no="no" id="order_no1" name="order_no[]" barcode="barcode"  type="text" class="form-control kt-input sp" placeholder="">
-               <span id="order_no_err1" class="form-text text-danger"></span>
-           </div>
 			<div class="form-group col-lg-2" style="display:none;" >
 				<label>الصفحه (البيج)</label>
 				<select store='store'   data-show-subtext="true" data-live-search="true" type="text" class="selectpicker  form-control dropdown-primary" name="store[]" id="store1"  value="">
@@ -163,16 +153,25 @@ include("config.php");
                 </select>
                 <span id="store_err1" storeerr="storeerr" class="form-text text-danger"></span>
 			</div>
+            <div class="form-group col-lg-2">
+				<label>المبلغ الكلي</label>
+				<input  onfocus="$(this).select();" price="price" oninput="CurrencyFormatted($(this),$(this).val())" style="direction: ltr;" type="text" class="form-control sp" id="order" name="order_price[]" placeholder="المبلغ" value="">
+				<span id="order_price_err1" class="form-text text-danger"></span>
+			</div>
+            <div class="form-group col-lg-2">
+            	<label>رقم الوصل:</label>
+            	<input onfocus="this.select();" no="no" id="order_no1" onkeyup="$(this).val($(this).val().replace(/[^0-9]+/g, ''))" name="order_no[]" barcode="barcode"  type="text" class="form-control kt-input sp" placeholder="">
+               <span id="order_no_err1" class="form-text text-danger"></span>
+           </div>
 			<div class="form-group col-lg-2">
 				<label>المحافظة المرسل لها</label>
-				<select  city="city"  onchange='getTowns($("#town1"),$("#city1").val())' city="city" data-show-subtext="true" data-live-search="true" type="text" class="selectpicker  form-control dropdown-primary" name="city[]" id="city1"  value="">
-
+				<select  city="city"  onchange='getTowns($("#town1"),$("#city1").val())'  data-show-subtext="true" data-live-search="true" type="text" class="selectpicker  form-control dropdown-primary" name="city[]" id="city1"  value="">
                 </select>
                 <span id="city_err1"class="form-text text-danger"></span>
 			</div>
             <div class="form-group  col-lg-2">
 				<label>القضاء او المنطقه</label>
-				<select   town="town" data-show-subtext="true" data-live-search="true" type="text" class="selectpicker  form-control dropdown-primary" name="town[]" id="town1"  value="">
+				<select   town="town" data-lang="ar" data-language="ar" data-show-subtext="true" data-live-search="true" type="text" class="selectpicker  form-control dropdown-primary" name="town[]" id="town1"  value="">
 
                 </select>
                 <span id="town_err" class="form-text text-danger"></span>
@@ -183,18 +182,20 @@ include("config.php");
 				<span id="order_address_err1" class="form-text text-danger"></span>
 			</div>
             <div class="form-group  col-lg-2">
-				<label>ملاحظات</label>
-				<textarea type="text" note="note" class="form-control" id="order_note1" name="order_note[]" value="" style="margin-top: 0px; margin-bottom: 0px; height: 38px;"></textarea>
-				<span id="order_note_err1" class="form-text text-danger"></span>
-			</div>
-            <div class="form-group  col-lg-2">
 				<label>رقم الهاتف المستلم</label>
 				<input  type="tel" phone="phone" style="direction: ltr !important;"  data-inputmask="'mask': '9999-999-9999'" value="" class="form-control sp" noseq="1" id="customer_phone1" name="customer_phone[]"/>
 				<span id="customer_phone_err1"  class="form-text text-danger"></span>
 			</div>
             <div class="form-group  col-lg-2">
-            <br />
-				<span case="case" class="form-text text-success"></span>
+				<label>ملاحظات</label>
+				<textarea type="text" note="note" class="form-control" id="order_note1" name="order_note[]" value="" style="margin-top: 0px; margin-bottom: 0px; height: 38px;"></textarea>
+				<span id="order_note_err1" class="form-text text-danger"></span>
+			</div>
+            <div class="form-group  col-lg-2">
+				<label>تسليم مبلغ</label>
+                <input  type="checkbox"  onclick="moneycheck(1)" class="form-control" id="money1" name="money[]"/>
+                <input  type="hidden" class="form-control" id="moneycheck1" name="moneycheck[]"/>
+				<span id="money_err1"  class="form-text text-danger"></span>
 			</div>
             <div class="form-group  col-lg-2">
 				<label>اضافه على كل حال</label>
@@ -432,7 +433,7 @@ include("config.php");
 					</div>
                     <div class="form-group">
 						<label>اسم المنطقة:</label>
-						<input type="name" name="town_name" class="form-control"  placeholder="اسم الحالة">
+						<input type="name" id="town_name" name="town_name" class="form-control"  placeholder="اسم الحالة">
 						<span class="form-text  text-danger" id="town_name_err"></span>
 					</div>
 					<div class="form-group">
@@ -465,7 +466,6 @@ include("config.php");
 <script src="assets/js/demo1/pages/components/datatables/extensions/responsive.js" type="text/javascript"></script>
 <script src="js/getBraches.js" type="text/javascript"></script>
 <script src="js/getClients.js" type="text/javascript"></script>
-<script src="js/getStores.js" type="text/javascript"></script>
 <script src="js/getorderStatus.js" type="text/javascript"></script>
 <script src="js/getCities.js" type="text/javascript"></script>
 <script src="js/getTowns.js" type="text/javascript"></script>
@@ -479,6 +479,28 @@ getTowns($("#town1"),$("#city1").val());
 getBraches($("#branch_to1"));
 getBraches($("#mainbranch"));
 getBraches($("#client_branch"));
+function getStores(elem,client){
+   $.ajax({
+     url:"script/_getStores.php",
+     type:"POST",
+     data:{client: client},
+     success:function(res){
+       elem.html("");
+       elem.append(
+           '<option value="">... اختر ...</option>'
+       );
+       $.each(res.data,function(){
+         elem.append("<option value='"+this.id+"'>"+this.name+"</option>");
+       });
+       console.log(res);
+       elem.selectpicker('refresh');
+     },
+     error:function(e){
+        elem.append("<option value='' class='bg-danger'>Error</option>");
+        console.log(e);
+     }
+   });
+}
 function getAllClient(ele){
    $.ajax({
      url:"script/_getClientsAll.php",
@@ -596,16 +618,6 @@ function addMore(){
     number =  $("#counter").val();
     content =content + `<fieldset id="f`+number+`"><legend>شحنه رقم `+number+`</legend>
           <div class="row">
-           <div  class="form-group col-lg-2">
-				<label>المبلغ الكلي</label>
-				<input foucs="foucs" price="price" onkeyup="CurrencyFormatted($(this))" type="text" class="form-control sp" id="order_price`+number+`" name="order_price[]" placeholder="المبلغ" value="">
-				<span id="order_price_err`+number+`" class="form-text text-danger"></span>
-			</div>
-            <div class="form-group col-lg-2">
-            	<label>رقم الوصل:</label>
-            	<input  no="no" id="order_no`+number+`" value="" name="order_no[]"  type="text" class="form-control sp" placeholder="">
-                <span id="order_no_err`+number+`" class="form-text text-danger"></span>
-            </div>
 			<div class="form-group col-lg-2" style="display:none;">
 				<label>الصفحه</label>
 				<select  store="store"  data-show-subtext="true" data-live-search="true" type="text" class="selectpicker  form-control dropdown-primary" name="store[]" id="store`+number+`"  value="">
@@ -613,6 +625,16 @@ function addMore(){
                 </select>
                 <span id="store_err`+number+`" storeerr="storeerr" class="form-text text-danger"></span>
 			</div>
+           <div  class="form-group col-lg-2">
+				<label>المبلغ الكلي</label>
+				<input onfocus="this.select();" foucs="foucs" price="price" oninput="CurrencyFormatted($(this))" type="text" class="form-control sp" id="order_price`+number+`" name="order_price[]" placeholder="المبلغ" value="">
+				<span id="order_price_err`+number+`" class="form-text text-danger"></span>
+			</div>
+            <div class="form-group col-lg-2">
+            	<label>رقم الوصل:</label>
+            	<input  onfocus="this.select();" no="no" id="order_no`+number+`" onkeyup="$(this).val($(this).val().replace(/[^0-9]+/g, ''))" value="" name="order_no[]"  type="text" class="form-control sp" placeholder="">
+                <span id="order_no_err`+number+`" class="form-text text-danger"></span>
+            </div>
 			<div class="form-group col-lg-2">
 				<label>المحافظة</label>
 				<select  city="city" onchange='`+`getTowns($("#town`+number+`"),$("#city`+number+`").val())`+`' city="city" data-show-subtext="true" data-live-search="true" type="text" class="selectpicker  form-control dropdown-primary" name="city[]" id="city`+number+`"  value="">
@@ -633,18 +655,20 @@ function addMore(){
 				<span id="order_address_err`+number+`" class="form-text text-danger"></span>
 			</div>
             <div class="form-group  col-lg-2">
-				<label>ملاحظات</label>
-				<textarea  note="note" type="text" class="form-control" name="order_note[]" style="height: 38px;">`+order_note+`</textarea>
-				<span id="order_note_err`+number+`" class="form-text text-danger"></span>
-			</div>
-            <div class="form-group  col-lg-2">
 				<label>رقم الهاتف</label>
 				<input  phone="phone" noseq="`+number+`" type="tel" style="direction: ltr !important;" data-inputmask="'mask': '9999-999-9999'" class="form-control sp" id="customer_phone`+number+`" name="customer_phone[]" value="" />
 				<span id="customer_phone_err`+number+`" class="form-text text-danger"></span>
 			</div>
             <div class="form-group  col-lg-2">
-				<br />
-				<span case="case" class="form-text text-success"></span>
+				<label>ملاحظات</label>
+				<textarea  note="note" type="text" class="form-control" name="order_note[]" style="height: 38px;">`+order_note+`</textarea>
+				<span id="order_note_err`+number+`" class="form-text text-danger"></span>
+			</div>
+            <div class="form-group  col-lg-2">
+				<label>تسليم مبلغ</label>
+                <input  type="checkbox" onclick="moneycheck(`+number+`)" class="form-control" id="money`+number+`" name="money[]"/>
+                <input  type="hidden" id="moneycheck`+number+`" name="moneycheck[]"/
+				<span id="money_err`+number+`"  class="form-text text-danger"></span>
 			</div>
             <div class="form-group  col-lg-2">
 				<label>اضافه على كل حال</label>
@@ -693,6 +717,7 @@ function byupdate(){
     $('#add_store').parent().css('display','none');
     $('#maincity').parent().parent().css('display','inline-block');
     $('#mainbranch').parent().css('display','inline-block');
+
     $("[store='store']").parent().parent().css('display','inline-block');
     $("[city='city']").parent().parent().css('display','none');
   }else{
@@ -701,6 +726,7 @@ function byupdate(){
     $('#maincity').parent().parent().css('display','none');
     $('#mainbranch').parent().css('display','none');
     $("[store='store']").parent().parent().css('display','none');
+
     $("[city='city']").parent().parent().css('display','inline-block');
   }
 }
@@ -736,6 +762,8 @@ function checkPhone(){
    console.log(out);
    if(out.length == 0){
       addOrders();
+    }else{
+      Toast.warning("<b>يوجد هاتف مستلم</b> مكرر يرجى التاكد او الضغط على 'اضافة على كل حال'");
     }
 }
 
@@ -746,8 +774,10 @@ function addOrders(){
     data:$("#orderstabledata").serialize(),
     beforeSend:function(){
       $('.text-danger').text('');
+      $('#orderstabledata').addClass('loading');
     },
     success:function(res){
+        $('#orderstabledata').removeClass('loading');
         console.log(res);
        if(res.success == 1){
          $("#orderstabledata input[name='order_no[]']").val("");
@@ -757,9 +787,14 @@ function addOrders(){
          $("#orderstabledata input[name='order_note[]']").val("");
          $("#orderstabledata input[name='order_address[]']").val("");
          $('[city="city"]').val("");
+         $('[store="store"]').val("");
+         $('[town="town"]').val("");
          $(".selectpicker").selectpicker('refresh');
          Toast.success('تم الاضافة');
          $("#kt_form .text-danger").text("");
+       }else if(res.success == 3){
+            Toast.warning("تم رفع اول ("+res.c+") طلب! يرجى محاولة رفع باقي الطلبيات مرة اخرى");
+            $("#f"+res.no).prevAll().remove();
        }else{
             no = res.error["no"]  ;
            $("#order_no_err"+no).text(res.error["order_no"]);
@@ -810,7 +845,8 @@ function addOrders(){
        }
     },
     error:function(e){
-      console.log(e);
+       $('#orderstabledata').removeClass('loading');
+       console.log(e);
        Toast.error('خطأ');
     }
   });
@@ -836,7 +872,11 @@ $(document).keydown(function(e) {
 if (event.which === 13 || event.keyCode === 13 ) {
     event.stopPropagation();
     event.preventDefault();
-    $("input:focus").closest('fieldset').next().find('[price="price"]').focus();
+    if($("#by").val() == 'city'){
+       $("input:focus").closest('fieldset').next().find('[store="store"]').next().focus();
+    }else{
+        $("input:focus").closest('fieldset').next().find('[price="price"]').focus();
+    }
 }
 
 
@@ -972,7 +1012,7 @@ function CurrencyFormatted(input, blur) {
 }
 function formatNumber(n) {
   // format number 1000000 to 1,234,567
-  return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  return n.replace(/[^0-9\-]+/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ",")
 }
 getCompanies($("#company"));
 
@@ -981,6 +1021,13 @@ function check(id){
     $("#check"+id).val(1);
  }else{
     $("#check"+id).val(0);
+ }
+}
+function moneycheck(id){
+ if($("#money"+id).is(':checked')){
+    $("#moneycheck"+id).val(1);
+ }else{
+    $("#moneycheck"+id).val(0);
  }
 }
 function addClientAndPage(){
@@ -1070,9 +1117,15 @@ function addtowns(){
     success:function(res){
        console.log(res);
        if(res.success == 1){
-         $("#kt_form input").val("");
+         $("#town_name").val("");
+
          Toast.success('تم الاضافة');
-         getTowns($("[town='town']").last(),$("[city='city']").last().val());
+            if($("#by").val() == 'city'){
+               getTowns($("[town='town']").last(),$("#maincity").last().val());
+            }else{
+                getTowns($("[town='town']").last(),$("[city='city']").last().val());
+            }
+
        }else{
            $("#town_name_err").text(res.error["town_err"]);
            $("#town_city_err").text(res.error["city_err"]);

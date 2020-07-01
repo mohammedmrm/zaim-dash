@@ -9,13 +9,13 @@ if(! in_array($_SESSION['user_details']['role_id'],$access_roles)){
     die();
 }*/
 require_once("script/_access.php");
-access([1,2,3,4,5,6]);
+access([1,2,3,4,5,6,7,8,9,10,11,12]);
 require_once("config.php");
 
 
 ?>
 <!-- Theme: Keen - The Ultimate Bootstrap Admin ThemeAuthor: KeenThemesWebsite: http://www.keenthemes.com/Contact: support@keenthemes.comFollow: www.twitter.com/keenthemesDribbble: www.dribbble.com/keenthemesLike: www.facebook.com/keenthemesLicense: You must have a valid license purchased only from https://themes.getbootstrap.com/product/keen-the-ultimate-bootstrap-admin-theme/ in order to legally use the theme for your project.-->
-<html  lang="en" >
+<html  lang="ar" >
     <!-- begin::Head -->
     <head>
         <meta charset="utf-8"/>
@@ -40,6 +40,7 @@ require_once("config.php");
         <!--begin::Global Theme Styles(used by all pages) -->
         <link href="./assets/vendors/global/vendors.bundle.rtl.css" rel="stylesheet" type="text/css" />
         <link href="./assets/css/demo1/style.bundle.rtl.css" rel="stylesheet" type="text/css" />
+        <link href="assets/vendors/custom/datatables/datatables.bundle.rtl.css" rel="stylesheet" type="text/css" />
         <!--end::Global Theme Styles -->
         <!--begin::Layout Skins(used by all pages) -->
         <link href="./assets/css/demo1/skins/header/base/light.rtl.css" rel="stylesheet" type="text/css" />
@@ -77,7 +78,7 @@ require_once("config.php");
       		padding: 10px;
       		position: relative;
       		border-radius:4px;
-              border-bottom:2px solid #FF6600;
+            border-bottom:2px solid #FF6600;
       		background-color:#f5f5f5;
       		padding-left:10px !important;
       		width:100%;
@@ -93,7 +94,7 @@ require_once("config.php");
       	padding: 5px 5px 5px 10px;
       	background-color: #ffffff;
       }
-        body * :not(.fa):not(.la):not(.kt-widget-20__label):not(.kt-widget-19__label):not(.close) {
+        body * :not(.fa):not(.la):not(.kt-widget-20__label):not(.kt-widget-19__label):not(.close):not(.check-mark) {
           font-family: 'Cairo', sans-serif !important;
         }
 
@@ -142,15 +143,34 @@ require_once("config.php");
         .bootstrap-select .dropdown-menu li a span.text {
           white-space: initial !important;
         }
+      .float{
+      	position:fixed;
+      	width:60px;
+      	height:60px;
+      	bottom:80px;
+      	left:20px;
+      	background-color:#25d366;
+      	color:#FFF;
+      	border-radius:50px;
+      	text-align:center;
+          font-size:30px;
+      	box-shadow: 2px 2px 3px #999;
+          z-index:100;
+      }
+
+    .my-float{
+    	margin-top:16px;
+    }
         </style>
     </head>
     <!-- end::Head -->
     <!-- begin::Body -->
     <body class="kt-page--loading-enabled kt-page--loading kt-quick-panel--right kt-demo-panel--right kt-offcanvas-panel--right kt-header--fixed kt-header-mobile--fixed kt-subheader--enabled kt-subheader--transparent kt-aside--enabled kt-aside--fixed kt-page--loading" >
         <!-- end::Global Config -->
-    <script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 
-        var KTAppOptions = {
+<script>
+var KTAppOptions = {
     "colors": {
         "state": {
             "brand": "#5d78ff",

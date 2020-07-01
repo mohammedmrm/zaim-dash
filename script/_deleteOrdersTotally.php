@@ -11,7 +11,7 @@ $msg="";
 
 if(count($ids)){
       try{
-         $query = "delete from orders where id=?";
+         $query = "update orders set confirm = 99 where id=?";
          foreach($ids as $v){
            $data = setData($con,$query,[$v]);
            if($data > 0){

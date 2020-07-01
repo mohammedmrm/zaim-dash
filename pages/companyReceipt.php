@@ -1,4 +1,12 @@
-
+<?php
+if(file_exists("script/_access.php")){
+require_once("script/_access.php");
+access([1,2,5]);
+}
+?>
+<?
+include_once("config.php");
+?>
 <!-- end:: Subheader -->
 					<!-- begin:: Content -->
 <div class="kt-container  kt-container--fluid  kt-grid__item kt-grid__item--fluid">

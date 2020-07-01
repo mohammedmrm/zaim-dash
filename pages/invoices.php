@@ -244,7 +244,7 @@ function getInvoices(){
      console.log(res);
 
      $.each(res.data,function(){
-
+      btn ="";
      if(this.invoice_status == 1){
        invoice_status = "<span >تم التحاسب<span>";
        btn = '<button type="button" class="btn btn-danger" onclick="unpayInvoice('+this.id+')" >الغأ التحاسب</button>';
@@ -254,15 +254,15 @@ function getInvoices(){
      }
      if(this.orders_status == 4){
        bg = 'success';
-     }else if(this.orders_status == 6 || this.orders_status == 9 || this.orders_status == 10){
+     }else if(this.orders_status == 6 || this.orders_status == 9 ){
        bg = 'danger';
-     if(this.invoice_status == 1){
-       invoice_status = "راجع للعميل";
-         btn = '<button type="button" class="btn btn-danger" onclick="unpayInvoice('+this.id+')" >ارجاع للمخزن الرئيسي</button>';
-     }else{
-       invoice_status = "رواجع";
-        btn = '<button type="button" class="btn btn-success" onclick="payInvoice('+this.id+')">راجع للعميل</button>';
-     }
+       if(this.invoice_status == 1){
+         invoice_status = "راجع للعميل";
+           btn = '<button type="button" class="btn btn-danger" onclick="unpayInvoice('+this.id+')" >ارجاع للمخزن الرئيسي</button>';
+       }else{
+         invoice_status = "رواجع";
+          btn = '<button type="button" class="btn btn-success" onclick="payInvoice('+this.id+')">راجع للعميل</button>';
+       }
      }else if(this.orders_status == 7){
        bg = 'warning';
      }else{
@@ -363,7 +363,7 @@ function unpayInvoice(id){
         data:{id:id},
         success:function(res){
          if(res.success == 1){
-           Toast.success('تم الدفع');
+           Toast.success('تم الغأ التحاسب');
            getInvoices();
          }else{
            Toast.warning(res.msg);

@@ -42,7 +42,12 @@ try{
 
             ";
   $where = "where";
-  $filter = " and orders.confirm = 4";
+  $filter = " and orders.confirm = 4 ";
+  if($_SESSION['role'] != 1 || $_SESSION['role'] != 5){
+    $filter .= " and to_branch='".$_SESSION['user_details']['branch_id']."'";
+  }else{
+    $filter .= " and (to_branch='".$_SESSION['user_details']['branch_id']."' or to_branch=null or to_branch='')";
+  }
   if($branch >= 1){
    $filter .= " and from_branch =".$branch;
   }

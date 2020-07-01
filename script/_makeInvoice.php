@@ -5,7 +5,7 @@ session_start();
 error_reporting(0);
 header('Content-Type: application/json');
 require("_access.php");
-access([1,2,5]);
+access([1]);
 require_once("dbconnection.php");
 $style='
 <style>
@@ -31,7 +31,7 @@ $city = $_REQUEST['city'];
 $customer = $_REQUEST['customer'];
 $order = $_REQUEST['order_no'];
 $client= $_REQUEST['client'];
-$status = $_REQUEST['orderStatus'];
+$statues = $_REQUEST['orderStatus'];
 $store = $_REQUEST['store'];
 $start = trim($_REQUEST['start']);
 $end = trim($_REQUEST['end']);
@@ -72,7 +72,7 @@ try{
               HAVING COUNT(orders.id) > 1
             ) b on b.order_no = orders.order_no
             ";
-$where = "where (
+$where = "where orders.confirm=1 and (
                  (invoice_id = 0) or
                  ((order_status_id=6 or order_status_id=5) and (orders.invoice_id2=0))
                 ) and ";
@@ -212,6 +212,11 @@ if($orders > 0){
                   }
                 }
                 $data[$i]['dev_price'] = $dev_p;
+                if($data[$i]['order_status_id'] == 9){
+                  $data[$i]['dev_price'] = 0;
+                  $dev_p = 0;
+                  $data[$i]['dicount']=0;
+                }
                 $data[$i]['client_price'] = ($data[$i]['new_price'] -  $dev_p) + $data[$i]['discount'];
                $bg = "";
                $note =  $data[$i]['note'];

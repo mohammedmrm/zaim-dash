@@ -19,7 +19,7 @@ $v->validate([
 
 if($v->passes()){
 
-         $sql = "delete from staff where id = ?";
+         $sql = "delete from staff where id = ? and developer = 0";
          $result = setData($con,$sql,[$id]);
          if($result > 0){
             $success = 1;

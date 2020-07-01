@@ -10,10 +10,10 @@ $start = $_REQUEST['start'];
 $end = $_REQUEST['end'];
 if(empty($end)) {
    $end = date('Y-m-d', strtotime(' + 1 day'));
+}else{
+   $end = date('Y-m-d', strtotime($end.' + 1 day'));
 }
-if(empty($start)) {
-   $start = date('Y-m-d',strtotime(' - 7 day'));
-}
+
 require("dbconnection.php");
 try{
   $query = "select invoice.*,date_format(invoice.date,'%Y-%m-%d') as in_date,clients.name as client_name,clients.phone as client_phone
@@ -40,7 +40,7 @@ try{
     }
 
     $query .=  $filter;
-    $query .=  " limit 1000";
+    $query .=  " order by invoice.date DESC limit 100";
     $data = getData($con,$query);
     $success="1";
 } catch(PDOException $ex) {

@@ -119,8 +119,8 @@
                 <h3 class="kt-portlet__head-title">الارباح لاخر 10 عملاء و للفترة المحددة</h3>
             </div>
         </div>
-        <div class="kt-portlet__body">
-        <table class="table table-striped table-bordered table-hover table-checkable responsive no-wrap" id="tb-clientEarnings">
+        <div class="kt-portlet__body" style="height: 320px; overflow-x:hidden; overflow-y: scroll">
+        <table class="table table-striped table-bordered table-hover table-checkable responsive nowrap" id="tb-clientEarnings">
 			       <thead>
 					<tr>
 				  		<th></th>
@@ -147,7 +147,7 @@
                 <h3 class="kt-portlet__head-title">احصائيات بالطلبات</h3>
             </div>
         </div>
-        <div class="kt-portlet__body">
+        <div class="kt-portlet__body" style="height: 320px; overflow-x:hidden; overflow-y: scroll">
         <table class="table table-striped table-bordered table-hover table-checkable responsive no-wrap" id="tb-ordersCount">
 			       <thead>
 	  						<tr>
@@ -168,7 +168,29 @@
 
 </div>
 <div class="row">
-<div class="col-lg-12 col-xl-12 order-lg-1 order-xl-1">
+  <div class="col-lg-6 col-xl-6 order-lg-1 order-xl-1">
+    <div class="kt-portlet" id="empylee_Record">
+        <div class="kt-portlet__head">
+            <div class="kt-portlet__head-label">
+                <h3 class="kt-portlet__head-title">عدد الادخلات لكل موظف</h3>
+            </div>
+        </div>
+        <div class="kt-portlet__body" style="height: 320px; overflow-x:hidden; overflow-y: scroll">
+        <table class="table table-striped table-bordered   responsive no-wrap" id="tb-empyleeRecord">
+			       <thead>
+	  						<tr>
+								  		<th>اسم الموظف</th>
+                                        <th>الادخالات</th>
+                            </tr>
+      	            </thead>
+                            <tbody id="empyleeRecord">
+                            </tbody>
+
+		</table>
+        </div>
+    </div>
+</div>
+<div class="col-lg-6 col-xl-6 order-lg-1 order-xl-1">
           <div class="kt-portlet">
   			<div class="kt-portlet__head">
   				<div class="kt-portlet__head-label">
@@ -237,14 +259,14 @@ function earnings(){
                   backgroundColor: 'rgb(115, 222, 10,0.4)',
                   type: 'line',
                   borderColor:  'rgb(105, 202, 10,0.9)',
-                  borderWidth:2,hitRadius:0,hoverRadius:0,
+                  borderWidth:2,hitRadius:3,hoverRadius:4,
                   borderWidth:2,
               },{
                   label: 'الدخل الكلي',
                   data: income,
                   backgroundColor: 'rgb(255, 109, 142,0.4)',
                   borderColor: 'rgb(255, 109, 142,0.9)',
-                  borderWidth:2,hitRadius:0,hoverRadius:0,
+                  borderWidth:2,hitRadius:3,hoverRadius:4,
                   type: 'line',
               }],
               labels: days,
@@ -269,7 +291,7 @@ function earnings(){
               },
               elements: {
                     point:{
-                        radius: 1.2
+                        radius: 1.8
                     }
              }
           }
@@ -510,11 +532,48 @@ $.ajax({
   }
   });
 }
+function empyleeRecords(){
+$.ajax({
+  url:"charts/_getEmpyleeRecords.php",
+  type:"POST",
+  data:{start: $("#start").val(),end:$("#end").val()},
+  beforeSend:function(){
+    $("#empylee_Record").addClass("loading");
+  },
+  success:function(res){
+   $("#empylee_Record").removeClass("loading");
+   console.log(res);
+   $("#tb-empyleeRecord").DataTable().destroy();
+   $('#empyleeRecord').html("");
+   $.each(res.data,function(){
+      $('#empyleeRecord').append(
+       '<tr>'+
+            '<td>'+this.name+'</td>'+
+            '<td class="fa-x">'+this.inserted+'</td>'+
+       '</tr>'
+      )
+     });
+
+     var myTable= $('#tb-ordersCounts').DataTable({
+      "oLanguage": {
+        "sLengthMenu": "عرض _MENU_ سجل",
+        "sSearch": "بحث:"
+      },
+       'order':[],
+      });
+    },
+   error:function(e){
+    $("#empylee_Record").removeClass("loading");
+    console.log(e);
+  }
+});
+}
 totalIcome();
 ceranings();
 getEraningsLast10Clients();
 getOrdersCount();
 getLast10Orders();
+empyleeRecords();
 function updateDash() {
  earnings();
  getLast10Orders();
@@ -522,5 +581,6 @@ function updateDash() {
  getEraningsLast10Clients();
  ceranings();
  totalIcome();
+ empyleeRecords();
 }
 </script>

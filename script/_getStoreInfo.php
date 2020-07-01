@@ -29,7 +29,7 @@ try{
    from stores
    inner join clients on clients.id = stores.client_id
    inner join orders on orders.store_id = stores.id
-   where stores.id=? group by orders.store_id";
+   where stores.id=? and invoice_id=0 and (orders.confirm = 1) group by orders.store_id";
   $data = getData($con,$query,[$id]);
 
   $success="1";

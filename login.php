@@ -234,7 +234,7 @@ function login(){
         if(ValidURL(res.redirect)){
          window.location.href = res.redirect;
         }else{
-         window.location.href = "index.php";
+         window.location.href = "index.php?page=pages/"+res.home;
        }
       }else{
         $("#msg").text(res.msg);

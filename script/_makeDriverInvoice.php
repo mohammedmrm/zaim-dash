@@ -18,30 +18,27 @@ $style='
     color:#F5F5F5;
     padding:5px;
   }
+  .red{
+    background-color:#FF6347;
+  }
 </style>' ;
 require("../config.php");
-
-
-
-$driver= $_REQUEST['driver'];
-$price = $_REQUEST['price'];
-
-$start = trim($_REQUEST['start']);
-$end = trim($_REQUEST['end']);
-
-
+$driver = $_REQUEST['driver'];
+$data = [];
+$end = $_REQUEST['end'];
+$start = $_REQUEST['start'];
+$statues = $_REQUEST['status'];
 $total = [];
 $money_status = trim($_REQUEST['money_status']);
-if(empty($end)) {
-  $end = "";
-}else{
-   $end =date('Y-m-d', strtotime($end. ' + 1 day'));
-   $end .=" 00:00:00";
+if(!empty($end)) {
+   $end .=' 23:59:59';
 }
-if(empty($start)) {
-  $start = "";
-}else{
-   $start .=" 00:00:00";
+if(!empty($start)) {
+  $start .=" 00:00:00";
+}
+function validateDate($date, $format = 'Y-m-d H:i:s'){
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) == $date;
 }
 if($_REQUEST['price'] > 0){
   $driver_price =    $_REQUEST['price'];
@@ -53,9 +50,9 @@ if($_REQUEST['price'] > 0){
 
 
 try{
- $count = "select count(*) as count from orders";
+ $count = "select count(*) as count from orders where driver_invoice_id = 0 and orders.confirm=1 and driver_id=".$driver;
  $query = "select orders.*,date_format(orders.date,'%Y-%m-%d') as dat,  order_status.status as status_name,
-          cites.name as city_name,
+          cites.name as city_name,driver.name as driver,
           towns.name as town_name,
             if(to_city = 1,
                  if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount)),
@@ -67,24 +64,31 @@ try{
                   if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount))
                  )
              ) as client_price,
-             if(orders.order_status_id=4 or order_status_id = 6,'".$driver_price."',0) as driver_price,
-             staff.name as driver
+             if(orders.order_status_id=4 or order_status_id = 6 or order_status_id = 5,'".$driver_price."',0) as driver_price
           from orders
-          inner join order_status on orders.order_status_id = order_status.id
-          inner join cites on orders.to_city = cites.id
-          inner join towns on orders.to_town = towns.id
-          inner join staff on orders.driver_id = staff.id
+          left join order_status on orders.order_status_id = order_status.id
+          left join cites on orders.to_city = cites.id
+          left join staff driver on driver.id = orders.driver_id
+          left join towns on orders.to_town = towns.id
           left JOIN client_dev_price on client_dev_price.client_id = orders.client_id AND client_dev_price.city_id = orders.to_city
-          ";
-  $where = "where driver_invoice_id = 0 and driver_id=".$driver;
+          where driver_id = '".$driver."' and driver_invoice_id = 0  and orders.confirm =1";
   $filter = "";
-  function validateDate($date, $format = 'Y-m-d H:i:s')
-  {
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) == $date;
+  if(!empty($start) && !empty($end)){
+      $filter .= " and orders.date between '".$start."' AND '".$end."' ";
   }
- $filter = preg_replace('/^ and/', '', $filter);
- $filter = $where." ".$filter;
+  $f="";
+  if(count($statues) > 0){
+    foreach($statues as $status){
+      if($status > 0){
+        $f .= " or order_status_id=".$status;
+      }
+    }
+    $f = preg_replace('/^ or/', '', $f);
+  }
+
+  if($f != ""){
+    $filter .= " and (".$f." )";
+  }
  $count .= " ".$filter;
  $query .= " ".$filter." order by orders.date";
 
@@ -115,8 +119,13 @@ if($orders > 0){
 
             foreach($data as $k=>$v){
               $total['income'] += $data[$i]['new_price'];
+              $bg ="";
+              if($data[$i]['order_status_id'] == 6){
+                $bg = "red";
+              }
+
               $hcontent .=
-               '<tr>
+               '<tr class="'.$bg.'">
                  <td width="30" align="center">'.($i+1).'</td>
                  <td width="100" align="center">'.$data[$i]['dat'].'</td>
                  <td align="center">'.$data[$i]['order_no'].'</td>

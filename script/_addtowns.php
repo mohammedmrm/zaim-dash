@@ -3,7 +3,7 @@ session_start();
 error_reporting(0);
 header('Content-Type: application/json');
 require("_access.php");
-access([1,2,3]);
+access([1,2,3,5]);
 require("dbconnection.php");
 require("_crpt.php");
 
@@ -33,7 +33,7 @@ $v->addRuleMessage('uniqueTownName', ' القيمة المدخلة مستخدم�
 $v->addRule('uniqueTownName', function($value, $input, $args) {
     $value  = trim($value);
     if(!empty($value)){
-    $exists = getData($GLOBALS['con'],"SELECT * FROM towns WHERE name ='".$value."'");
+    $exists = getData($GLOBALS['con'],"SELECT * FROM towns WHERE name ='".$value."' and city_id='".$args[0]."'");
     }else{
       $exists = 0;
     }
@@ -41,7 +41,7 @@ $v->addRule('uniqueTownName', function($value, $input, $args) {
 });
 $v->validate([
     'city'   => [$city, 'required|max(3)|int'],
-    'town'   => [$town, 'required|max(50)|min(3)|uniqueTownName'],
+    'town'   => [$town, 'required|max(50)|min(3)|uniqueTownName('.$city.')'],
     'center' => [$center, 'min(1)|max(1)']
 ]);
 

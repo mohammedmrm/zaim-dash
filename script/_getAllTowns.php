@@ -9,14 +9,19 @@ $city = $_REQUEST['city'];
 if(empty($city)){
   $query = "select
            towns.name as town,cites.name as city, towns.id as id,
-           towns.center as center
-           from towns inner join cites on cites.id = towns.city_id";
+           towns.center as center,if(staff.name is null,'',staff.name) as driver_name
+           from towns inner join cites on cites.id = towns.city_id
+           left join driver_towns on driver_towns.town_id = towns.id
+           left join staff on staff.id = driver_towns.driver_id
+           ";
 }else{
  $query = "select
            towns.name as town,cites.name as city, towns.id as id,
-           towns.center as center
+           towns.center as center,if(staff.name is null,'',staff.name) as driver_name
            from towns
            inner join cites on cites.id = towns.city_id
+           left join driver_towns on driver_towns.town_id = towns.id
+           left join staff on staff.id = driver_towns.driver_id
            where city_id=".$city;
 }
 try{

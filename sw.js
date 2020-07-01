@@ -801,7 +801,7 @@ self.__precacheManifest = [
     url: "assets/js/demo1/scripts.bundle.js",
     revision: "faaaed9e685c8313bfe60468d9ef3c79",
   },
-  
+
   {
     url: "assets/vendors/custom/datatables/datatables.bundle.css",
     revision: "0de183e3ea37a7248ff95c427697612e",
@@ -1131,7 +1131,7 @@ self.__precacheManifest = [
     url: "Cairofont2.woff2",
     revision: "0f76f616dfdcbec3148d8e934486ba97",
   },
-  
+
   { url: "index.php", revision: "f1c474e85b8bb6edfd2667844d257df5" },
   { url: "install.php", revision: "23736ba16f9cf4d7c1eb3fde1eded1e7" },
   { url: "js/alert.js", revision: "f13b73a2ea45588cc618f355731216be" },
@@ -1184,7 +1184,7 @@ self.__precacheManifest = [
   { url: "js/toast.js", revision: "fae7f854c415e506d7f8d298fa9228e3" },
   { url: "js/webfont.js", revision: "9224f101e832356c17974cffa186ade2" },
   { url: "login.php", revision: "e38f0869b5071a461bb57d65b7dcd7d3" },
- 
+
    {
      url: "pages/addorder.php",
      revision: "1db0e8f3057c2edc830c7259c344c32e",
@@ -1201,10 +1201,10 @@ self.__precacheManifest = [
     url: "pages/clients.php",
     revision: "44fcfcc1ce76761a98de46a17f8f865c",
   },
-  {
+/*  {
     url: "pages/clientsDetails.php",
     revision: "ec8d873d5acbd9bcbad078dc63bfdbdb",
-  },
+  },*/
   {
     url: "pages/companies.php",
     revision: "7e9e595ebb5f2e08b986a0b98e8beb55",

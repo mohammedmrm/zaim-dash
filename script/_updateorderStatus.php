@@ -3,7 +3,7 @@ session_start();
 error_reporting(0);
 header('Content-Type: application/json');
 require("_access.php");
-access([1,2]);
+access([1,2,5]);
 require("dbconnection.php");
 require("_crpt.php");
 

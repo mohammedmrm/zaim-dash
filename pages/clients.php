@@ -89,6 +89,11 @@ $.ajax({
    elem.html("");
    $("#client_table").removeClass('loading');
    $.each(res.data,function(){
+     if(this.show_earnings == 1){
+       show = 'text-success ';
+     }else{
+       show = 'text-danger ';
+     }
      elem.append(
        '<tr>'+
             '<td>'+this.id+'</td>'+
@@ -100,6 +105,7 @@ $.ajax({
               '<button class="btn btn-clean btn-icon-lg" onclick="editClient('+this.id+')" data-toggle="modal" data-target="#editClient"><span class="flaticon-edit"></sapn>'+
               '<button class="btn btn-clean btn-icon-lg" onclick="deleteClient('+this.id+')" data-toggle="modal" data-target="#deleteClient"><span class="flaticon-delete"></sapn>'+
               '<button class="btn btn-clean btn-icon-lg" onclick="devPriceClient('+this.id+')" data-toggle="modal" data-target="#devPriceClient"><span class="flaticon-price-tag"></sapn>'+
+              '<button class=" '+show+'btn btn-clean btn-icon-lg" onclick="editSetting('+this.id+')" data-toggle="modal" data-target="#showEarningsClient"><span class="flaticon-cogwheel"></sapn>'+
             '</button></td>'+
 
        '</tr>');
@@ -184,6 +190,46 @@ getAllclients($("#getAllclientsTable"));
 					</div>
 				</div>
                 <input type="hidden" id="editclientid" name="editclientid" />
+			</form>
+			<!--end::Form-->
+		</div>
+		<!--end::Portlet-->
+        </div>
+      </div>
+
+    </div>
+  </div>
+<div class="modal fade" id="showEarningsClient" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"></button>
+          <h4 class="modal-title">عرض او اخفاء الكشوفات والارباح</h4>
+        </div>
+        <div class="modal-body">
+		<!--begin::Portlet-->
+		<div class="kt-portlet">
+
+			<!--begin::Form-->
+			<form class="kt-form" id="showEarningsForm">
+				<div class="kt-portlet__body">
+					<div class="form-group">
+						<label>حالة عرض الكشوفات والارباح</label>
+						<select type="text" class="selectpicker form-control dropdown-primary" name="show_earnings" id="show_earnings"  value="">
+                           <option value="1">اضهار الارباح والكشوفات</option>
+                           <option value="0">اخفاء الارباح والكشوفات</option>
+                        </select>
+                        <span class="form-text text-danger" id="show_earnings_err"></span>
+					</div>
+				</div>
+                <div class="kt-portlet__foot kt-portlet__foot--solid">
+					<div class="kt-form__actions kt-form__actions--right">
+						<button type="button" onclick="showEarnings()" class="btn btn-brand">تحديث</button>
+						<button type="reset" data-dismiss="modal" class="btn btn-secondary">الغاء</button>
+					</div>
+				</div>
+                <input type="hidden" id="sett_client_id" name="sett_client_id" />
 			</form>
 			<!--end::Form-->
 		</div>
@@ -280,6 +326,61 @@ function deleteClient(id){
       });
   }
 }
+function editSetting(id){
+  $(".text-danger").text("");
+  $("#sett_client_id").val(id);
+  $.ajax({
+    url:"script/_getClientByID.php",
+    data:{id: id},
+    beforeSend:function(){
+      $("#showEarningsForm").addClass('loading');
+    },
+    success:function(res){
+       $("#showEarningsForm").removeClass('loading');
+      if(res.success == 1){
+        $.each(res.data,function(){
+          $('#show_earnings').val(this.show_earnings);
+        });
+      }
+      $(".selectpicker").selectpicker('refresh');
+      console.log(res);
+    },
+    error:function(e){
+      $("#editClientForm").removeClass('loading');
+      console.log(e);
+    }
+  });
+}
+
+function showEarnings(){
+    $(".text-danger").text("");
+    $.ajax({
+       url:"script/_showEarnings.php",
+       type:"POST",
+       data:$("#showEarningsForm").serialize(),
+       beforeSend:function(){
+        $("#showEarningsForm").addClass('loading');
+       },
+       success:function(res){
+         $("#showEarningsForm").removeClass('loading');
+         console.log(res);
+       if(res.success == 1){
+          $("#kt_form input").val("");
+          Toast.success('تم التحديث');
+          getAllclients($("#getAllclientsTable"));
+       }else{
+           $("#show_earnings_err").text(res.error["client_branch_err"]);
+           Toast.warning("هناك بعض المدخلات غير صالحة",'خطأ');
+       }
+       },
+       error:function(e){
+        $("#editClientForm").removeClass('loading');
+        Toast.error('خطأ');
+        console.log(e);
+       }
+    });
+}
+
 </script>
   <!-- Modal -->
   <div class="modal fade " id="addClientModal" role="dialog">

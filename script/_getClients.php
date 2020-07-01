@@ -2,12 +2,10 @@
 session_start();
 header('Content-Type: application/json');
 require("_access.php");
-access([1,2,3,4,5,6]);
+access([1,2,3,4,5,6,7,8,9,10,11,12]);
 error_reporting(0);
 $branch = $_REQUEST['branch'];
-if(empty($branch)){
-  $branch =1;
-}
+
 require("dbconnection.php");
 try{
   if(!empty($branch) && $branch > 0){

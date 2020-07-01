@@ -1,12 +1,14 @@
 <?php
-ini_set('max_execution_time', 600); 
+//-- create invoce fo recived orders only
+ini_set('max_execution_time', 60000);
 ob_start();
 session_start();
 error_reporting(0);
 header('Content-Type: application/json');
 require("_access.php");
-access([1,2,5]);
+access([1,2]);
 require_once("dbconnection.php");
+
 $style='
 <style>
  td,th{
@@ -22,14 +24,60 @@ $style='
   .repated {
     background-color:#E0FFFF;
   }
+  .head-tr {
+   background-color: #33CC00;
+   color:#111;
+  }
+  .price_bg {
+    background-color: #9966FF;
+  }
+  </style>
 ';
 require("../config.php");
 
 $status = 4;
 $store = $_REQUEST['store'];
+$dev_price_b = $_REQUEST['dev_price_b'];
+$dev_price_o = $_REQUEST['dev_price_o'];
+$start = trim($_REQUEST['start']);
+$end = trim($_REQUEST['end']);
+if(!empty($end)) {
+   $end .=" 23:59:59";
+}else{
+  $end =date('Y-m-d H:i:s');
+}
+if(!empty($start)) {
+   $start .=" 00:00:00";
+}
+function validateDate($date, $format = 'Y-m-d H:i:s')
+{
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) == $date;
+}
 
+try{
+if($store >= 1 && $dev_price_b > 999 && $dev_price_o > 999){
+    $sql= "select * from stores where id= ?";
+    $client =getData($con,$sql,[$store]);
+    if(count($client) > 0){
+    $sql= "delete from client_dev_price where client_id= ?";
+    $delete_dev_price = setData($con,$sql,[$client[0]['client_id']]);
+    $sql = "select * from cites";
+    $cities = getData($con,$sql);
+            foreach($cities as $city){
+                 $sql = "insert into client_dev_price (price,city_id,client_id) value(?,?,?)";
+                 if($city['id'] == 1){
+                  $update_price = setData($con,$sql,[$dev_price_b,$city['id'],$client[0]['client_id']]);
+                 }else{
+                  $update_price = setData($con,$sql,[$dev_price_o,$city['id'],$client[0]['client_id']]);
+                 }
+            }
+   }
 
+}
+}catch(PDOException $ex) {
 
+}
 $total = [];
 
 try{
@@ -48,25 +96,19 @@ try{
             left join towns on  towns.id = orders.to_town
             left join branches on  branches.id = orders.to_branch
             ";
-  $where = "where (
-                 (invoice_id = 0) or
-                 ((order_status_id=6 or order_status_id=5) and (orders.invoice_id2=0))
-                ) and ";
+  $where = "where orders.confirm=1  and invoice_id = 0 and ";
   $filter = "";
 
   ///-----------------status
-  if($status == 4){
-    $filter .= " and (order_status_id =4 or order_status_id = 6 or order_status_id = 5)";
-  }else if($status == 9){
-    $filter .= " and (order_status_id =9 or order_status_id = 6 or order_status_id = 5)";
-  }else if($status >= 1){
-    $filter .= " and order_status_id =".$status;
-  }
+  $filter .= " and (order_status_id =4 or order_status_id = 6 or order_status_id = 5)";
+
   //---------------------end of status
   if($store >= 1){
     $filter .= " and store_id=".$store;
   }
-
+  if(validateDate($start) && validateDate($end)){
+    $filter .= " and orders.date between '".$start."' AND '".$end."'";
+  }
   if($filter != ""){
      $filter = preg_replace('/^ and/', '', $filter);
      $filter = $where." ".$filter;
@@ -87,44 +129,9 @@ try{
    $success="0";
 }
 // set default header data
-if($status == 4){
-  $status_name = "مستلمة";
-  $style .= "
-  .head-tr {
-   background-color: #33CC00;
-   color:#111;
-  }
-</style>
-  ";
-}else if($status == 6 || $status == 9 || $status == 5 || $status == 10 || $status == 11){
-  $status = 9;
-  $status_name = "راجعه";
-  $style .= "
-  .head-tr {
-   background-color: #FF3300;
-   color:#111;
-  }
-</style>
-  ";
-}else if($status == 7){
-  $status_name = "مؤجل";
-   $style .= "
-  .head-tr {
-   background-color: #FFFF99;
-   color:#111;
-  }
-</style>
-  ";
-}else{
-  $status_name = "غير معروفه";
-   $style .= "
-  .head-tr {
-   background-color: #CCCCCC;
-   color:#111;
-  }
-</style>
-  ";
-}
+$status_name = "مستلمة";
+
+
 if($orders > 0){
     try{
         $i = 0;
@@ -152,7 +159,18 @@ if($orders > 0){
                    $dev_p = $config['dev_o'];
                   }
                 }
+                if($v['to_city'] == 1 && $dev_price_b > 999){
+                 $dev_p = $dev_price_b;
+                }
+                if($v['to_city'] != 1 && $dev_price_o > 999){
+                 $dev_p = $dev_price_o;
+                }
                 $data[$i]['dev_price'] = $dev_p;
+                if($data[$i]['order_status_id'] == 9){
+                  $data[$i]['dev_price'] = 0;
+                  $dev_p = 0;
+                  $data[$i]['dicount']=0;
+                }
                 $data[$i]['client_price'] = ($data[$i]['new_price'] -  $dev_p) + $data[$i]['discount'];
                 $note =  $data[$i]['note'];
                 $bg = "";
@@ -167,15 +185,13 @@ if($orders > 0){
                if($data[$i]['repated'] > 1){
                  $bg = "repated";
                }
-              if($status == 9 && ($data[$i]['order_status_id'] == 6 || $data[$i]['order_status_id'] == 5)){
-                 $sql = "update orders set invoice_id2 =? where id=?";
-                 $res = setData($con,$sql,[$invoice,$v['id']]);
-                 $data[$i]['client_price'] = 0;
-
-              }else{
+               $price_bg ="";
+               if($data[$i]['new_price'] !== $data[$i]['price']){
+                 $price_bg = "price_bg";
+               }
                 $sql = "update orders set invoice_id =? where id=?";
                 $res = setData($con,$sql,[$invoice,$v['id']]);
-              }
+
         $hcontent .=
          '<tr class="'.$bg.'">
            <td width="60"  align="center">'.($i+1).'</td>
@@ -184,7 +200,7 @@ if($orders > 0){
            <td width="120" align="center">'.phone_number_format($data[$i]['customer_phone']).'</td>
            <td width="160" align="center" >'.$data[$i]['city'].' - '.$data[$i]['town'].' - '.$data[$i]['address'].'</td>
            <td width="80" align="center">'.number_format($data[$i]['price']).'</td>
-           <td width="80" align="center">'.number_format($data[$i]['new_price']).'</td>
+           <td width="80" class="'.$price_bg.'" align="center">'.number_format($data[$i]['new_price']).'</td>
            <td width="80" align="center">'.number_format($data[$i]['dev_price']).'</td>
            <td align="center">'.number_format($data[$i]['client_price']).'</td>
            <td align="center">'.$note.'</td>
@@ -245,7 +261,7 @@ class MYPDF extends TCPDF {
                 'عدد طلبيات بغداد : '.$t['b_orders'].'<br />'.
                 'عدد طلبيات المحافظات : '.$t['o_orders'].'<br />'.
           '</td>
-          <td >رقم الكشف:'.$t['orders'].'</td>
+          <td >رقم الكشف:'.$t['invoice'].'</td>
          </tr>
         </table>
         ');
@@ -334,5 +350,5 @@ $pdf->Output(dirname(__FILE__).'/../invoice/'.$pdf_name, 'F');
 }else{
   $success = 2;
 }
-echo json_encode(['num'=>$count,'success'=>$success,'invoice'=>$pdf_name]);
+echo json_encode([$cities,$update_price,'num'=>$count,'success'=>$success,'invoice'=>$pdf_name]);
 ?>

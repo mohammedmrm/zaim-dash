@@ -17,7 +17,7 @@ $v->validate([
     ]);
 
 if($v->passes()){
-         $sql = "delete from orders where id = ?";
+         $sql = "update orders set confirm = 99 where id=?";
          $result = setData($con,$sql,[$id]);
          if($result > 0){
             $success = 1;

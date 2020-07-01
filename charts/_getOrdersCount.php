@@ -31,7 +31,7 @@ $sql = "SELECT
           SUM(IF (order_status_id = '3',1,0)) as  ontheway,
           SUM(IF (order_status_id = '4',1,0)) as  recieved,
           SUM(IF (order_status_id = '5',1,0)) as  chan,
-          SUM(IF (order_status_id = '6',1,0)) as  returnd,
+          SUM(IF (order_status_id = '9',1,0)) as  returnd,
           SUM(IF (order_status_id = '7',1,0)) as  posponded,
           branches.name as branch_name
           FROM orders inner join branches on branches.id = orders.from_branch
@@ -44,7 +44,7 @@ $sql = "SELECT
           SUM(IF (order_status = '3',1,0)) as  ontheway,
           SUM(IF (order_status = '4',1,0)) as  recieved,
           SUM(IF (order_status = '5',1,0)) as  chan,
-          SUM(IF (order_status = '6',1,0)) as  returnd,
+          SUM(IF (order_status = '9',1,0)) as  returnd,
           SUM(IF (order_status = '7',1,0)) as  posponded,
           branches.name as branch_name
           FROM orders inner join branches on branches.id = orders.from_branch

@@ -1,14 +1,14 @@
 ﻿{
     "name": "شركة البرق للتوصيل السريع",
     "short_name": " أدارة المخزن",
-   "start_url": "/dash/",
+   "start_url": "/alnahr/albarq/",
 	 "icons": [
         {
-            "src": "/dash/pwa/android-chrome-512x512.png",
+            "src": "/alnahr/albarq/pwa/android-chrome-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         },{
-            "src": "/dash/pwa/android-chrome-192x192.png",
+            "src": "/alnahr/albarq/pwa/android-chrome-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         }

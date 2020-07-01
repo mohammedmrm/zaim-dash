@@ -20,9 +20,9 @@ if(empty($start)) {
 }
 
 if($_SESSION['role'] != 1){
-  $s = "select sum(new_price) as total, count(*) as orders from orders where from_branch=? and
+  $s = "select sum(new_price) as total, count(*) as orders from orders where (from_branch=? or to_branch=?) and
         date between '".$start."' and '".$end."' and confirm=1";
-  $r= getData($con,$s,[$_SESSION['user_details']['branch_id']]);
+  $r= getData($con,$s,[$_SESSION['user_details']['branch_id'],$_SESSION['user_details']['branch_id']]);
 }else{
   $s = "select sum(new_price) as total, count(*) as orders from orders where
         date between '".$start."' and '".$end."' and confirm = 1";

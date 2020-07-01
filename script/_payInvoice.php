@@ -2,12 +2,12 @@
 session_start();
 //error_reporting(0);
 header('Content-Type: application/json');
-require("_access.php");
-access([1]);
+require_once("_access.php");
+access([1,5,2]);
 $id= $_REQUEST['id'];
 $success = 0;
 $msg="";
-require("dbconnection.php");
+require_once("dbconnection.php");
 
 use Violin\Violin;
 require_once('../validator/autoload.php');
@@ -25,7 +25,9 @@ if($v->passes()){
              $result = setData($con,$sql,[$id]);
              if($result > 0){
                  $success = 1;
-                 $sql = "update orders set money_status = 1,order_status_id = 12 where invoice_id=?";
+                 $sql = "update orders set money_status = 1, storage_id=-1  where invoice_id=? and order_status_id <> 6 and order_status_id <> 5";
+                 $result = setData($con,$sql,[$id]);
+                 $sql = "update orders set money_status = 1, storage_id=-1 where invoice_id2=? and order_status_id = 6 or order_status_id = 5";
                  $result = setData($con,$sql,[$id]);
              }else{
                 $msg = "مدفوعه مسبقاً";

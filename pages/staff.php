@@ -52,7 +52,7 @@ access([1,2]);
 										<th>رقم الهاتف</th>
 										<th>الوظيفة</th>
 										<th>المناطق</th>
-										<th>الهوية</th>
+										<th>المخزن</th>
 										<th>تعديل</th>
 										
 		  					</tr>
@@ -67,7 +67,7 @@ access([1,2]);
 										<th>رقم الهاتف</th>
 										<th>الوظيفة</th>
 										<th>المناطق</th>
-										<th>الهوية</th>
+										<th>المخزن</th>
 										<th>تعديل</th>
 
 					</tr>
@@ -76,7 +76,8 @@ access([1,2]);
 		<!--end: Datatable -->
 	</div>
 </div>	</div>
-<!-- end:: Content -->				</div>
+<!-- end:: Content -->
+</div>
 
 
             <!--begin::Page Vendors(used by this page) -->
@@ -92,6 +93,7 @@ access([1,2]);
                             <script src="./assets/js/demo1/pages/custom/profile/profile.js" type="text/javascript"></script>
 <script src="js/getBraches.js" type="text/javascript"></script>
 <script src="js/getRoles.js" type="text/javascript"></script>
+<script src="js/getStorage.js" type="text/javascript"></script>
 <script src="js/getAllunAssignedTowns.js" type="text/javascript"></script>
 <script type="text/javascript">
 function getStaff(elem){
@@ -115,9 +117,12 @@ $.ajax({
             '<td>'+this.phone+'</td>'+
             '<td>'+this.role_name+'</td>'+
             '<td>'+btn+'</td>'+
-            '<td><a href="img/staff/'+this.id_copy+'"><img class="userimg" src="img/staff/'+this.id_copy+'"></a></td>'+
-            '<td><button class="btn btn-link " onclick="editStaff('+this.id+')" data-toggle="modal" data-target="#editstaffModal"><span class="flaticon-edit"></sapn></button>'+
-            '<button class="btn btn-link text-danger" onclick="deleteStaff('+this.id+')" data-toggle="modal" data-target="#deletestaffModal"><span class="flaticon-delete"></sapn></button></td>'+
+            '<td>'+this.storage_name+'</td>'+
+            '<td>'+
+                '<button class="btn btn-link " onclick="editStaff('+this.id+')" data-toggle="modal" data-target="#editstaffModal"><span class="flaticon-edit"></sapn></button>'+
+                '<button class="btn btn-link text-danger" onclick="deleteStaff('+this.id+')" data-toggle="modal" data-target="#deletestaffModal"><span class="flaticon-delete"></sapn></button>'+
+                '<button class="btn btn-link text-warning" onclick="setStaffid('+this.id+')" data-toggle="modal" data-target="#setStaffStorageModal"><span class="flaticon-buildings"></sapn></button>'+
+            '</td>'+
         '</tr>');
      });
      var myTable= $('#tb-staff').DataTable({
@@ -132,7 +137,33 @@ $.ajax({
   }
 });
 }
+function setStaffid(id){
+  $("#s_staff_id").val(id);
+}
+function setSatffStorage(){
+      $.ajax({
+        url:"script/_setSatffStorage.php",
+        type:"POST",
+        data:$("#setStaffStorageForm").serialize(),
+        success:function(res){
+         if(res.success == 1){
+           Toast.success('تم تحديد المخزن');
+           getStaff($("#staffTable"));
+         }else{
+           Toast.warning(res.msg);
+         }
+         console.log(res)
+        } ,
+        error:function(e){
+          console.log(e);
+        }
+      });
+}
+$(document).ready(function(){
 getStaff($("#staffTable"));
+getStorage($("#storage"));
+});
+
 
 </script>
 <div class="modal fade" id="addstaffModal" role="dialog">
@@ -425,6 +456,45 @@ getStaff($("#staffTable"));
 
     </div>
 </div>
+<div class="modal fade" id="setStaffStorageModal" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"></button>
+          <h4 class="modal-title">عرض او اخفاء الكشوفات والارباح</h4>
+        </div>
+        <div class="modal-body">
+		<!--begin::Portlet-->
+		<div class="kt-portlet">
+
+			<!--begin::Form-->
+			<form class="kt-form" id="setStaffStorageForm">
+				<div class="kt-portlet__body">
+					<div class="form-group">
+						<label>حالة عرض الكشوفات والارباح</label>
+						<select type="text" class="selectpicker form-control dropdown-primary" name="storage" id="storage">
+
+                        </select>
+                        <span class="form-text text-danger" id="show_earnings_err"></span>
+					</div>
+				</div>
+                <div class="kt-portlet__foot kt-portlet__foot--solid">
+					<div class="kt-form__actions kt-form__actions--right">
+						<button type="button" onclick="setSatffStorage()" class="btn btn-brand">تحديث</button>
+						<button type="reset" data-dismiss="modal" class="btn btn-secondary">الغاء</button>
+					</div>
+				</div>
+                <input type="hidden" id="s_staff_id" name="s_staff_id" />
+			</form>
+			<!--end::Form-->
+		</div>
+		<!--end::Portlet-->
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 <script>
 function addStaff(){
