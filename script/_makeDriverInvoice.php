@@ -21,6 +21,12 @@ $style='
   .red{
     background-color:#FF6347;
   }
+  .price_bg {
+    background-color: #D3D3D3;
+  }
+  .repated_bg {
+     background-color: #FF6347;
+  }
 </style>' ;
 require("../config.php");
 $driver = $_REQUEST['driver'];
@@ -53,7 +59,7 @@ try{
  $count = "select count(*) as count from orders where driver_invoice_id = 0 and orders.confirm=1 and driver_id=".$driver;
  $query = "select orders.*,date_format(orders.date,'%Y-%m-%d') as dat,  order_status.status as status_name,
           cites.name as city_name,driver.name as driver,
-          towns.name as town_name,
+          towns.name as town_name,b.rep as repated ,
             if(to_city = 1,
                  if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount)),
                  if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount))
@@ -71,6 +77,11 @@ try{
           left join staff driver on driver.id = orders.driver_id
           left join towns on orders.to_town = towns.id
           left JOIN client_dev_price on client_dev_price.client_id = orders.client_id AND client_dev_price.city_id = orders.to_city
+          left join (
+             select order_no,count(*) as rep from orders  where confirm = 1 and driver_id = '".$driver."'
+              GROUP BY order_no
+              HAVING COUNT(orders.id) > 1
+            ) b on b.order_no = orders.order_no
           where driver_id = '".$driver."' and driver_invoice_id = 0  and orders.confirm =1";
   $filter = "";
   if(!empty($start) && !empty($end)){
@@ -108,8 +119,8 @@ if($orders > 0){
         $content = "";
         $success = 0;
         $pdf_name = date('Y-m-d')."_".uniqid().".pdf";
-        $sql = "insert into driver_invoice (path,driver_id) values(?,?)";
-        $res = setData($con,$sql,[$pdf_name,$driver]);
+        $sql = "insert into driver_invoice (path,driver_id,invoice_status) values(?,?,?)";
+        $res = setData($con,$sql,[$pdf_name,$driver,1]);
         if($res > 0){
           $success = 1;
           $sql = "select *,date_format(date,'%Y-%m-%d') as date from driver_invoice where path=? and driver_id =? order by date DESC limit 1";
@@ -123,16 +134,23 @@ if($orders > 0){
               if($data[$i]['order_status_id'] == 6){
                 $bg = "red";
               }
-
+              $price_bg = "";
+               if($data[$i]['new_price'] !== $data[$i]['price']){
+                 $price_bg = "price_bg";
+               }
+              $repated_bg = "";
+               if($data[$i]['repated'] > 1){
+                 $repated_bg = "repated_bg";
+               }
               $hcontent .=
                '<tr class="'.$bg.'">
                  <td width="30" align="center">'.($i+1).'</td>
                  <td width="100" align="center">'.$data[$i]['dat'].'</td>
-                 <td align="center">'.$data[$i]['order_no'].'</td>
+                 <td class="'.$repated_bg.'" align="center">'.$data[$i]['order_no'].'</td>
                  <td width="120" align="center">'.phone_number_format($data[$i]['customer_phone']).'</td>
                  <td width="180" align="center">'.$data[$i]['city_name'].' - '.$data[$i]['town_name'].' - '.$data[$i]['adress'].'</td>
                  <td align="center">'.number_format($data[$i]['price']).'</td>
-                 <td align="center">'.number_format($data[$i]['new_price']).'</td>
+                 <td  class="'.$price_bg.'" align="center">'.number_format($data[$i]['new_price']).'</td>
                  <td align="center">'.number_format($data[$i]['driver_price']).'</td>
                  <td align="center">'.$data[$i]['status_name'].'</td>
                </tr>';

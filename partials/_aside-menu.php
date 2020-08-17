@@ -120,6 +120,14 @@ $se = $_SESSION['role'];
                             </a>
                         </li>
                         <?php } ?>
+                        <?php  if($se==1 || $se==2 || $se==3 || $se==5 || $se=99){?>
+                        <li class="kt-menu__item " aria-haspopup="true" >
+                            <a href="?page=pages/storageInvoices.php" class="kt-menu__link ">
+                                <i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i>
+                                <span class="kt-menu__link-text">كشوفات المحازن</span>
+                            </a>
+                        </li>
+                        <?php } ?>                        
                         <?php  if($se==1 || $se==2 || $se==5 || $se=99){?>
                         <li class="kt-menu__item " aria-haspopup="true" >
                             <a href="?page=pages/returnedToCityStore.php" class="kt-menu__link ">
@@ -133,6 +141,14 @@ $se = $_SESSION['role'];
                             <a href="?page=pages/confirmBranchOrders.php" class="kt-menu__link ">
                                 <i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i>
                                 <span class="kt-menu__link-text">تأكيد طلبيات الافرع</span>
+                            </a>
+                        </li>
+                        <?php } ?>
+                        <?php  if($se==1 || $se==2 || $se==5 || $se==99){?>
+                        <li class="kt-menu__item " aria-haspopup="true" >
+                            <a href="?page=pages/confirmClientOrders.php" class="kt-menu__link ">
+                                <i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i>
+                                <span class="kt-menu__link-text">تأكيد طلبيات العملاء</span>
                             </a>
                         </li>
                         <?php } ?>
@@ -241,6 +257,14 @@ $se = $_SESSION['role'];
                             <a href="?page=pages/staff.php" class="kt-menu__link ">
                                 <i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i>
                                 <span class="kt-menu__link-text">الموظفين</span>
+                            </a>
+                        </li>
+                        <?php } ?>
+                        <?php  if($se==1 || $se=99){?>
+                        <li class="kt-menu__item " aria-haspopup="true" >
+                            <a href="?page=pages/autoUpdate.php" class="kt-menu__link ">
+                                <i class="kt-menu__link-bullet kt-menu__link-bullet--dot"><span></span></i>
+                                <span class="kt-menu__link-text">التحديث التلقائي</span>
                             </a>
                         </li>
                         <?php } ?>

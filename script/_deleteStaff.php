@@ -23,6 +23,8 @@ if($v->passes()){
          $result = setData($con,$sql,[$id]);
          if($result > 0){
             $success = 1;
+            $sql = "delete from driver_towns where driver_id = ?";
+            setData($con,$sql,[$id]);
          }else{
             $msg = "فشل الحذف";
          }

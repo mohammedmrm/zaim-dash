@@ -190,8 +190,8 @@ if($orders > 0){
         $success = 0;
         $pdf_name = uniqid().".pdf";
         $name = $pdf_name;
-        $sql = "insert into invoice (path,store_id,orders_status) values(?,?,?)";
-        $res = setData($con,$sql,[$pdf_name,$store,$status]);
+        $sql = "insert into invoice (path,store_id,orders_status,invoice_status) values(?,?,?,?)";
+        $res = setData($con,$sql,[$pdf_name,$store,$status,1]);
     if($res > 0){
       $success = 1;
       $sql = "select *,date_format(date,'%Y-%m-%d') as date from invoice where path=? and store_id =? order by date DESC limit 1";

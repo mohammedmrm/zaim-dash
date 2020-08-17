@@ -98,6 +98,7 @@
     </a>-->
 </div>
 <input type="hidden" value="<?php echo $_GET['notification'];?>" id="notification_seen_id"  />
+<input type="hidden" value="<?php echo $_SESSION['role'];?>" id="notification_role"  />
 <script>
 function getNotification(){
     $.ajax({
@@ -116,8 +117,13 @@ function getNotification(){
           }else{
             bg = "";
           }
+          if($('#notification_role').val() == 9){
+            link = '?page=pages/callCenterCheck.php&order_no='+this.order_no+'&notification='+this.n_id;
+          }else{
+            link = '?page=pages/reports.php&order_no='+this.order_no+'&notification='+this.n_id;
+          }
          $("#noti_menu").append(
-         '<a href="?page=pages/reports.php&order_no='+this.order_no+'&notification='+this.n_id+'" class="'+bg+' kt-notification__item">'+
+         '<a href="'+link+'" class="'+bg+' kt-notification__item">'+
             '<div class="kt-notification__item-icon"> <i class="flaticon2-pie-chart kt-font-focus"></i> </div>'+
             '<div class="kt-notification__item-details">'+
                 '<div class="kt-notification__item-title"><b>'+this.title+'</b><br />'+this.body+'</div>'+

@@ -2,14 +2,12 @@
 session_start();
 error_reporting(0);
 header('Content-Type: application/json');
-require_once("_access.php");
-require_once("../config.php");
-access([1,2,3,5]);
-require_once("dbconnection.php");
+require("_access.php");
+access([1,2,5]);
+require("dbconnection.php");
 $branch = $_REQUEST['branch'];
 $to_branch = $_REQUEST['to_branch'];
 $city = $_REQUEST['city'];
-$town = $_REQUEST['town'];
 $customer = $_REQUEST['customer'];
 $order = $_REQUEST['order_no'];
 $client= $_REQUEST['client'];
@@ -20,24 +18,21 @@ $end = trim($_REQUEST['end']);
 $limit = trim($_REQUEST['limit']);
 $page = trim($_REQUEST['p']);
 $money_status = trim($_REQUEST['money_status']);
-if(!empty($end)) {
-   $end .=" 23:59:59";
+if(empty($end)) {
+  $end = date('Y-m-d h:i:s', strtotime($end. ' + 1 day'));
 }else{
-   $end =date('Y-m-d', strtotime(' + 1 day'));
    $end .=" 23:59:59";
 }
-if(!empty($start)) {
-   $start .=" 00:00:00";
-}
+$start .=" 00:00:00";
 try{
   $count = "select count(*) as count from orders ";
   $query = "select orders.*,DATE_FORMAT(orders.date,'%Y-%m-%d') as date,
             clients.name as client_name,clients.phone as client_phone,
             cites.name as city,towns.name as town,branches.name as branch_name,
             if(to_city = 1,
-                 if(order_status_id=9,0,if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount))),
-                 if(order_status_id=9,0,if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount)))
-            ) + if(new_price > 500000 ,( (ceil(new_price/500000)-1) * ".$config['addOnOver500']." ),0) as dev_price,if(order_status_id=9,0,discount) as discount
+                 if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount)),
+                 if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount))
+            )as dev_price
             from orders left join
             clients on clients.id = orders.client_id
             left join cites on  cites.id = orders.to_city
@@ -46,11 +41,8 @@ try{
             left JOIN client_dev_price on client_dev_price.client_id = orders.client_id AND client_dev_price.city_id = orders.to_city
 
             ";
-  $where = "where ";
-  if($_SESSION['role'] != 1 && $_SESSION['role'] != 5){
-   $where = "where (from_branch = '".$_SESSION['user_details']['branch_id']."' or to_branch = '".$_SESSION['user_details']['branch_id']."') and ";
-  }
-  $filter = " and orders.confirm = 1";
+  $where = "where";
+  $filter = " and orders.confirm = 5 ";
   if($branch >= 1){
    $filter .= " and from_branch =".$branch;
   }
@@ -63,9 +55,6 @@ try{
   if(($money_status == 1 || $money_status == 0) && $money_status !=""){
     $filter .= " and money_status='".$money_status."'";
   }
-  if($town >= 1){
-    $filter .= " and to_town=".$town;
-  }  
   if($client >= 1){
     $filter .= " and orders.client_id=".$client;
   }
@@ -77,13 +66,13 @@ try{
                       customer_phone like '%".$customer."%')";
   }
   if(!empty($order)){
-    $filter .= " and order_no = '".$order."'";
+    $filter .= " and order_no like '%".$order."%'";
   }
-  //-----------------status
+  ///-----------------status
   if($status == 4){
-    $filter .= " and (order_status_id =".$status." or order_status_id = 6 or order_status_id = 5)";
+    $filter .= " and (order_status_id =".$status." or order_status_id = 6)";
   }else if($status == 9){
-    $filter .= " and (order_status_id =".$status." or order_status_id =11 or order_status_id = 6 or order_status_id = 5)";
+    $filter .= " and (order_status_id =".$status." or order_status_id = 6 or order_status_id = 5)";
   }else  if($status >= 1){
     $filter .= " and order_status_id =".$status;
   }
@@ -129,5 +118,5 @@ if($success == '1'){
     }
   }
 }
-echo (json_encode(array($query,"success"=>$success,"data"=>$data,'pages'=>$pages,'page'=>$page+1)));
+print_r(json_encode(array($query,"success"=>$success,"data"=>$data,'pages'=>$pages,'page'=>$page+1)));
 ?>

@@ -20,6 +20,7 @@ $status = $_REQUEST['orderStatus'];
 $storageStatus = $_REQUEST['storageStatus'];
 $callcenter = $_REQUEST['callcenter'];
 $storage = $_REQUEST['storage'];
+$storage_invoice = $_REQUEST['storage_invoice'];
 $driver = $_REQUEST['driver'];
 $repated = $_REQUEST['repated'];
 $confirm = $_REQUEST['confirm'];
@@ -49,6 +50,7 @@ if(!empty($start)) {
 try{
   $count = "select count(*) as count from orders
             left join invoice on invoice.id = orders.invoice_id
+            left join storage_invoice on storage_invoice.id = orders.storage_invoice_id
             left join (
              select order_no,count(*) as rep from orders
               GROUP BY order_no
@@ -61,7 +63,8 @@ try{
             if(order_status_id <> 4 ,if(orders.storage_id =0,'عند المندوب',if(orders.storage_id =-1,'عند العميل',storage.name)),'') as storage_status,
             cites.name as city,towns.name as town,branches.name as branch_name,to_branch.name as to_branch_name,
             order_status.status as status_name,staff.name as staff_name,b.rep as repated , driver.name as driver_name,
-            orders.invoice_id as invoice_id,invoice.path as invoice_path,invoice.invoice_status as invoice_status
+            orders.invoice_id as invoice_id,invoice.path as invoice_path,invoice.invoice_status as invoice_status,
+            storage_invoice.path as storage_invoice_path
             from orders left join
             clients on clients.id = orders.client_id
             left join cites on  cites.id = orders.to_city
@@ -75,6 +78,7 @@ try{
             left join order_status on  order_status.id = orders.order_status_id
             left join storage on  storage.id = orders.storage_id
             left join invoice on invoice.id = orders.invoice_id
+            left join storage_invoice on storage_invoice.id = orders.storage_invoice_id
             left JOIN client_dev_price on client_dev_price.client_id = orders.client_id AND client_dev_price.city_id = orders.to_city
             left join (
              select count(*) as nuseen_msg, max(order_id) as order_id from message
@@ -91,7 +95,11 @@ try{
             ";
 
     $where = "where (order_status_id=6 or order_status_id=9 or order_status_id=5) and ";
-
+    if(($_SESSION['role'] == 1 || $_SESSION['role'] == 5 || $_SESSION['role'] == 8) &&  $_SESSION['user_details']['branch_id'] == 1){
+      $filter .= "";
+    }else{
+       $filter .= " and (from_branch = '".$_SESSION['user_details']['branch_id']."' or to_branch = '".$_SESSION['user_details']['branch_id']."') ";
+    }
    if($confirm == 1 || $confirm == 4){
     $filter .= " and orders.confirm ='".$confirm."'";
    }else{
@@ -99,6 +107,11 @@ try{
    }
   if($branch >= 1){
    $filter .= " and from_branch =".$branch;
+  }
+  if($storage_invoice == 1){
+   $filter .= " and orders.storage_invoice_id = 0";
+  }else if($storage_invoice == 2){
+   $filter .= " and orders.storage_invoice_id <> 0";
   }
   if($to_branch >= 1){
    $filter .= " and to_branch =".$to_branch;
@@ -241,7 +254,7 @@ try{
           sum(discount) as discount,
           count(orders.order_no) as orders
           from orders
-
+          left join storage_invoice on storage_invoice.id = orders.storage_invoice_id
           left JOIN client_dev_price on client_dev_price.client_id = orders.client_id AND client_dev_price.city_id = orders.to_city
           left join invoice on invoice.id = orders.invoice_id
           left join (
@@ -267,5 +280,5 @@ if($store >=1){
    $total=["error"=>$ex];
    $success="0";
 }
-echo json_encode(array($sqlt,"success"=>$success,"data"=>$data,'total'=>$total,"pages"=>$pages,"page"=>$page));
+echo json_encode(array($query,"success"=>$success,"data"=>$data,'total'=>$total,"pages"=>$pages,"page"=>$page));
 ?>

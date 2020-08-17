@@ -2,10 +2,10 @@
 session_start();
 error_reporting(0);
 header('Content-Type: application/json');
-require("_access.php");
+require_once("_access.php");
 access([1,2,3,4,5,6,7,8,9,10,11,12]);
-require("dbconnection.php");
-require("../config.php");
+require_once("dbconnection.php");
+require_once("../config.php");
 
 $branch = $_REQUEST['branch'];
 $to_branch = $_REQUEST['to_branch'];
@@ -57,12 +57,12 @@ try{
             if(to_city = 1,
                  if(orders.order_status_id=9,0,if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount))),
                  if(orders.order_status_id=9,0,if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount)))
-            )as dev_price,
+            ) + if(new_price > 500000 ,( (ceil(new_price/500000)-1) * ".$config['addOnOver500']." ),0) as dev_price,
             new_price -
               (if(to_city = 1,
                   if(orders.order_status_id=9,0,if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount))),
                   if(orders.order_status_id=9,0,if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount)))
-                 )
+                 ) + if(new_price > 500000 ,( (ceil(new_price/500000)-1) * ".$config['addOnOver500']." ),0)
              ) as client_price,if(orders.order_status_id=9,0,discount) as discount,
               if(orders.order_status_id <> 4 ,if(orders.storage_id =0,'عند المندوب',if(orders.storage_id =-1,'عند العميل',storage.name)),'عند الزبون') as storage_status,
             clients.name as client_name,clients.phone as client_phone,if(tracking.note is null,'',tracking.note) as t_note,
@@ -99,7 +99,7 @@ try{
             ) b on b.order_no = orders.order_no
             left join (
               select max(id) as last_id,order_id from tracking group by order_id
-            )c on c.order_id = orders.id
+            ) c on c.order_id = orders.id
             left join tracking on c.last_id = tracking.id
             ";
 

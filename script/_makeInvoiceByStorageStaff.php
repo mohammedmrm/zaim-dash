@@ -5,7 +5,7 @@ session_start();
 error_reporting(0);
 header('Content-Type: application/json');
 require("_access.php");
-access([1,5,7]);
+access([1,5,9,2]);
 require_once("dbconnection.php");
 $style='
 <style>
@@ -23,7 +23,14 @@ $style='
   .repated {
     background-color:#E0FFFF;
   }
-';
+  .head-tr {
+   background-color:#DF5B5B;
+   color:#111;
+  }
+  .row_bg {
+    background-color: #FBD5DC;
+  }
+</style>';
 require("../config.php");
 
 $branch = $_REQUEST['branch'];
@@ -39,6 +46,7 @@ $driver = $_REQUEST['driver'];
 $start = trim($_REQUEST['start']);
 $end = trim($_REQUEST['end']);
 $total = [];
+$msg = "";
 if(!empty($end)) {
    $end .=" 23:59:59";
 }else{
@@ -48,7 +56,7 @@ if(!empty($end)) {
 if(!empty($start)) {
    $start .=" 00:00:00";
 }
-
+if($storage == $_SESSION['user_details']['storage_id'] || $_SESSION['role'] == 1){
 try{
   $count = "select count(*) as count,
                SUM(IF (to_city = 1,1,0)) as  b_orders,
@@ -123,16 +131,14 @@ try{
    $data=["error"=>$ex];
    $success="0";
 }
+}else{
+ $success = 3;
+ $msg = "لاتملك صلاحيا انشاء كشف للمخزن المحدد";
+}
 // set default header data
 $status = 9;
-  $status_name = "كشف راجع";
-  $style .= "
-  .head-tr {
-   background-color: #FF3300;
-   color:#111;
-  }
-</style>
-  ";
+$status_name = "كشف راجع";
+
 
 
 if($orders > 0){
@@ -146,7 +152,7 @@ if($orders > 0){
     if($res > 0){
       $success = 1;
       $sql = "select *,date_format(date,'%Y-%m-%d') as date from invoice where path=? and store_id =? order by date DESC limit 1";
-      $res = getdata($con,$sql,[$pdf_name,$store]);
+      $res = getData($con,$sql,[$pdf_name,$store]);
       $invoice = $res[0]['id'];
       $date = $res[0]['date'];
 
@@ -185,6 +191,10 @@ if($orders > 0){
                if($data[$i]['repated'] > 1){
                  $bg = "repated";
                }
+               $row_bg = "";
+               if(($i%2) == 1 && $data[$i]['order_status_id'] != 6 && $data[$i]['order_status_id'] != 5 && $data[$i]['repated'] <= 1){
+                  $row_bg = "row_bg";
+               }
               if(($data[$i]['order_status_id'] == 6 || $data[$i]['order_status_id'] == 5)){
                  $sql = "update orders set invoice_id2 =? where id=?";
                  $res = setData($con,$sql,[$invoice,$v['id']]);
@@ -194,7 +204,7 @@ if($orders > 0){
                 $res = setData($con,$sql,[$invoice,$v['id']]);
               }
         $hcontent .=
-         '<tr class="'.$bg.'">
+         '<tr class="'.$bg.'  '.$row_bg.'">
            <td width="60"  align="center">'.($i+1).'</td>
            <td width="100" align="center">'.$data[$i]['dat'].'</td>
            <td width="80"  align="center">'.$data[$i]['order_no'].'</td>
@@ -223,6 +233,7 @@ if($orders > 0){
           if($store >=1){
            $total['client'] = $data[0]['client_name'];
            $total['store'] = $data[0]['store_name'];
+           $total['client_phone'] = $data[0]['client_phone'];
           }else{
            $total['client'] = 'غير معروف';
            $total['store'] = 'غير معروف';
@@ -237,31 +248,7 @@ require_once("../tcpdf/tcpdf.php");
 class MYPDF extends TCPDF {
     public function Header() {
         $t = $GLOBALS['total'];
-        $this->writeHTML('
-         <table >
-         <tr>
-          <td rowspan="4"><img src="../img/logos/logo.png" height="90px"/></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-         </tr>
-         <tr>
-          <td width="230px">اسم العميل او الصفحه:('. $t['client'].') - '.$t['store'].'</td>
-          <td width="300px" style="color:#FF0000;text-align:center;display:block;">كشف حساب ('.$t['status'].')</td>
-          <td >التاريخ:'.$t['date'].'</td>
-         </tr>
-         <tr>
-          <td width="230px">الصافي للعميل:'.$t['client_price'].'</td>
-          <td width="300px" style="text-align:center;display:block;">'.
-                'عدد الطلبيات  الكلي: '.$t['orders'].'<br />'.
-                'عدد طلبيات بغداد : '.$t['b_orders'].'<br />'.
-                'عدد طلبيات المحافظات : '.$t['o_orders'].'<br />'.
-          '</td>
-          <td >رقم الكشف:'.$t['invoice'].'</td>
-         </tr>
-        </table>
-        ');
+        $this->writeHTML('');
     }
 }
 $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -292,7 +279,7 @@ $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 
 
 // set margins
-$pdf->SetMargins(PDF_MARGIN_LEFT, 32, PDF_MARGIN_RIGHT);
+$pdf->SetMargins(5, 5, 10);
 $pdf->SetHeaderMargin(5);
 $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 // set auto page breaks
@@ -310,8 +297,36 @@ $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 $pdf->AddPage('L', 'A4');
 
 // Persian and English content
-
-$htmlpersian = '		<table border="1" class="table">
+$header ='
+             <table>
+             <tr>
+                    <td ></td>
+                    <td width="300"></td>
+                    <td style="text-align:left;" width="300" rowspan="5">
+                      <img src="../img/logos/logo.png" height="100px"/>
+                    </td>
+             </tr>
+             <tr>
+                    <td style="text-align:right;"><span align="right" style="color:#DC143C;">كشف حساب العميل</span></td>
+                    <td  width="350" rowspan="4">
+                    '.
+                      'عدد الطلبيات  الكلي: '.$total['orders'].'<br />'.
+                      'عدد طلبيات بغداد : '.$total['b_orders'].'<br />'.
+                      'عدد طلبيات المحافظات : '.$total['o_orders'].
+                    '</td>
+             </tr>
+             <tr>
+                    <td style="text-align:right;">اسم الصفحه: '.$total['store'].' - '.$total['client_phone'].'</td>
+             </tr>
+             <tr>
+                    <td style="text-align:right;">التاريخ:'.date('Y-m-d').'</td>
+             </tr>
+             <tr>
+                    <td style="text-align:right;">رقم الكشف:'.$total['invoice'].'</td>
+             </tr>
+            </table>
+        ';
+$htmlpersian = '<table border="1" class="table" cellpadding="3">
 			       <thead>
 	  						<tr  class="head-tr">
                                         <th width="60">#</th>
@@ -331,7 +346,7 @@ $htmlpersian = '		<table border="1" class="table">
                             '</tbody>
 		</table>
         ';
-$pdf->WriteHTML($style.$htmlpersian, true, 0, true, 0);
+$pdf->WriteHTML($style.$header.$htmlpersian, true, 0, true, 0);
 
 // set LTR direction for english translation
 $pdf->setRTL(false);
@@ -346,6 +361,7 @@ ob_end_clean();
 $pdf->Output(dirname(__FILE__).'/../invoice/'.$pdf_name, 'F');
 }else{
   $success = 2;
+  $msg = "لايوجد طلبيات";
 }
-echo json_encode([$query,'num'=>$count,'success'=>$success,'invoice'=>$pdf_name]);
+echo json_encode(['msg'=>$msg,'num'=>$count,'success'=>$success,'invoice'=>$pdf_name]);
 ?>

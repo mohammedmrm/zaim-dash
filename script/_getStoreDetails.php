@@ -34,12 +34,12 @@ $query = "select orders.*,date_format(orders.date,'%Y-%m-%d') as dat,  order_sta
             if(to_city = 1,
                  if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount)),
                  if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount))
-            )as dev_price,
+            ) + if(new_price > 500000 ,( (ceil(new_price/500000)-1) * ".$config['addOnOver500']." ),0) as dev_price,
             new_price -
               (if(to_city = 1,
                   if(client_dev_price.price is null,(".$config['dev_b']." - discount),(client_dev_price.price - discount)),
                   if(client_dev_price.price is null,(".$config['dev_o']." - discount),(client_dev_price.price - discount))
-                 )
+                 ) + if(new_price > 500000 ,( (ceil(new_price/500000)-1) * ".$config['addOnOver500']." ),0)
              ) as client_price
           from orders
           left join order_status on orders.order_status_id = order_status.id
@@ -83,10 +83,7 @@ $query = "select orders.*,date_format(orders.date,'%Y-%m-%d') as dat,  order_sta
           count(order_no) as orders
           from orders
           left JOIN client_dev_price on client_dev_price.client_id = orders.client_id AND client_dev_price.city_id = orders.to_city
-          where store_id = ? and orders.confirm=1 and (
-                 (invoice_id = 0) or
-                 ((order_status_id=6 or order_status_id=5) and (orders.invoice_id2=0))
-                ) and (order_status_id =4 or order_status_id = 6 or order_status_id = 5)
+          where store_id = ? and orders.confirm=1 and invoice_id = 0 and (order_status_id =4 or order_status_id = 6 or order_status_id = 5) 
           ";
           if($filter != ""){
             $sql .= $filter;

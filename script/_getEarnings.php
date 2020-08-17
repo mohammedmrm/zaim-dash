@@ -22,14 +22,14 @@ if(empty($start)) {
 if($_SESSION['user_details']['role_id'] == 1){
   $sql = 'select
             sum(
-               if(order_status_id = 4,
+               if(order_status_id = 4 or order_status_id = 5 or order_status_id = 6,
                 if(to_city = 1,
                  if(order_status_id=9,0,if(client_dev_price.price is null,('.$config['dev_b'].' - discount),(client_dev_price.price - discount))),
                  if(order_status_id=9,0,if(client_dev_price.price is null,('.$config['dev_o'].' - discount),(client_dev_price.price - discount)))
                 ),0)
              ) as earnings,
              sum(
-                 if(order_status_id = 4,
+                 if(order_status_id = 4 or order_status_id = 5 or order_status_id = 6,
                    new_price -
                    (
                        if(to_city = 1,
@@ -39,7 +39,18 @@ if($_SESSION['user_details']['role_id'] == 1){
                    ),0
                 )
              ) as client_price,
-             sum(if(order_status_id = 4,new_price,0)) as income,
+             sum(
+                 if((order_status_id = 4 or order_status_id = 5 or order_status_id = 6) and invoice_id=0,
+                   new_price -
+                   (
+                       if(to_city = 1,
+                         if(order_status_id=9,0,if(client_dev_price.price is null,('.$config['dev_b'].' - discount),(client_dev_price.price - discount))),
+                         if(order_status_id=9,0,if(client_dev_price.price is null,('.$config['dev_o'].' - discount),(client_dev_price.price - discount)))
+                        )
+                   ),0
+                )
+             ) as with_company,
+             sum(if(order_status_id = 4 or order_status_id = 5 or order_status_id = 6,new_price,0)) as income,
              sum(if(order_status_id=9,0,discount)) as discount,
              count(orders.id) as orders,
             max(clients.name) as name,
@@ -56,7 +67,7 @@ if($_SESSION['user_details']['role_id'] == 1){
 }else{
   $sql = 'select
             sum(
-                 if(order_status_id = 4,
+                 if(order_status_id = 4 or order_status_id = 5 or order_status_id = 6,
                      if(to_city = 1,
                            if(order_status_id=9,0,if(client_dev_price.price is null,('.$config['dev_b'].' - discount),(client_dev_price.price - discount))),
                            if(order_status_id=9,0,if(client_dev_price.price is null,('.$config['dev_o'].' - discount),(client_dev_price.price - discount)))
@@ -64,7 +75,7 @@ if($_SESSION['user_details']['role_id'] == 1){
                   )
              ) as earnings,
              sum(
-                if(order_status_id = 4,
+                if(order_status_id = 4 or order_status_id = 5 or order_status_id = 6,
                  new_price -
                  (
                      if(to_city = 1,
@@ -73,7 +84,17 @@ if($_SESSION['user_details']['role_id'] == 1){
                       )
                 ),0)
              ) as client_price,
-            sum(if(order_status_id = 4,new_price,0)) as income,
+             sum(
+                if((order_status_id = 4 or order_status_id = 5 or order_status_id = 6) and invoice_id=0,
+                 new_price -
+                 (
+                     if(to_city = 1,
+                           if(order_status_id=9,0,if(client_dev_price.price is null,('.$config['dev_b'].' - discount),(client_dev_price.price - discount))),
+                           if(order_status_id=9,0,if(client_dev_price.price is null,('.$config['dev_o'].' - discount),(client_dev_price.price - discount)))
+                      )
+                ),0)
+             ) as with_company,
+            sum(if(order_status_id = 4 or order_status_id = 5 or order_status_id = 6,new_price,0)) as income,
             sum(if(order_status_id=9,0,discount)) as discount,
             count(orders.id) as orders,
             max(clients.name) as name,

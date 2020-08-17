@@ -557,14 +557,15 @@ function makeInvoice() {
                   if(res.success == 1){
                     getInvoices();
                     getStoreDetails();
+                    window.open('invoice/'+res.invoice, '_blank');
                   }else{
                    Toast.warning("خطأ");
                   }
                 },
                 error:function(e){
-                  $("#orders-reciverd-total").removeClass('loading');
+                  $("#tb-orders-reciverd").removeClass('loading');
                   console.log(e);
-                  Toast.warning("خطأ");
+                  Toast.warning("!خطأ");
                 }
               });
     }else{
@@ -586,11 +587,13 @@ function makeInvoiceForReturned() {
                   if(res.success == 1){
                     getStoreReturned();
                     getInvoices();
+                    window.open('invoice/'+res.invoice, '_blank');
                   }else{
                    Toast.warning("خطأ");
                   }
                 },
                 error:function(e){
+                  $("#tb-returned").removeClass("loading");
                   console.log(e);
                 }
               });
@@ -653,7 +656,9 @@ function unpayInvoice(id){
         success:function(res){
          if(res.success == 1){
            Toast.success('تم الدفع');
+           getInvoices();
            getStoreDetails();
+           getStoreReturned();
          }else{
            Toast.warning(res.msg);
          }

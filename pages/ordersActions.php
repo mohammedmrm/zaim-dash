@@ -195,8 +195,9 @@ legend
             		<option value="delete">حذف جميع الطلبات المحددة</option>
             		<option value="status">تحديث الحالة الى</option>
             		<option value="discount">خصم سعر توصيل المحدد</option>
-            		<option value="money_out">تم تسليم مبلغ جميع الطلبات المحددة</option>
-            		<option value="money_in">لم يتم تسليم مبلغ جميع الطلبات المحددة</option>
+            		<option value="returnedToStore9">راجع كلي للمخزن</option>
+            		<option value="returnedToStore6">راجع جزئي للمخزن</option>
+
             	</select>
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
@@ -426,10 +427,9 @@ function disable(){
     $("#driver_action").attr("disabled",true);
     $("#status_action").attr("disabled",true);
   }else{
-
     $("#discount").attr("disabled",true);
-    $("#driver_action").removeAttr("disabled");
-    $("#status_action").removeAttr("disabled");
+    $("#driver_action").attr("disabled",true);
+    $("#status_action").attr("disabled",true);
   }
   getAllDrivers($("#driver_action"),$("#branch").val());
   $('.selectpicker').selectpicker('refresh');

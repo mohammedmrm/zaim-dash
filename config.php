@@ -8,7 +8,8 @@ $config = [
    "Company_logo"=>"img/logos/logo.png",
    "dev_b"=>5000,               //سعر توصيل بغدلد
    "dev_o"=>10000,                //سعر توصيل باقي المحافظات
-   "driver_price"=>3000                //اجرة المندوب
+   "driver_price"=>3000,                //اجرة المندوب
+   "addOnOver500"=>2000
 
 ];
 function phone_number_format($number) {

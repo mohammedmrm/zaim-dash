@@ -40,7 +40,7 @@ function access($access_roles = []){
     $_SESSION['userid']=$result[0]['id'];
     $_SESSION['role']=$result[0]['role_id'];
     $_SESSION['user_details']=$result[0];
-  }
+  } 
   if(!in_array($_SESSION['user_details']['role_id'],$access_roles) || !isset($_SESSION['userid'])){
     header("location: login.php?redirect=".$GLOBALS['link']);
     die("<h1>لاتمتلك صلاحيات الوصول لهذه الصفحة  (<a href='login.php'>سجل الدخول</a>)</h1>");

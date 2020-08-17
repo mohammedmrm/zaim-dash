@@ -294,7 +294,7 @@ try{
       $i++;
     }
       $total['orders'] = $orders;
-      if($to_branch >=1){
+      if($city >=1){
        $total['to'] ='المحافظه : '.  $data[0]['city'];
       }else{
        $total['to'] = 'المحافظه : '. 'لم يتم تحديد محافظه';
@@ -401,80 +401,7 @@ class MYPDF extends TCPDF {
         $reportType = $GLOBALS['reportType'];
         $this->SetFont('aealarabiya', 'B', 12);
         // Title
-        if($reportType ==  2){
-            $header=
-            '
-             <table >
-             <tr>
-              <td width="180" rowspan="2">
-                <span align="center" style="color:#DC143C;">التسليمات المطلوبه</span><br />
-                <img src="../img/logos/logo.png" height="80px"/>
-              </td>
-              <td ></td>
-              <td ></td>
-             </tr>
-             <tr>
-              <td style="text-align:right;" width="200">'.$t['to'].'</td>
-              <td  width="180">'.
-                'عدد الطلبيات  الكلي: '.$t['orders'].'<br />'.
-                'عدد طلبيات بغداد : '.$t['b_orders'].'<br />'.
-                'عدد طلبيات المحافظات : '.$t['o_orders'].'<br />'.
-              '</td>
-              <td  width="150">التاريخ:'.date('Y-m-d').'</td>
-             </tr>
-            </table>
-            ';
-
-        }else if($reportType ==  3){
-            $header=
-            '
-             <table >
-             <tr>
-              <td width="180" rowspan="2">
-                <span align="center" style="color:#DC143C;">التسليمات المطلوبه</span><br />
-                <img src="../img/logos/logo.png" height="80px"/>
-              </td>
-              <td ></td>
-              <td ></td>
-             </tr>
-             <tr>
-              <td style="text-align:right;" width="200">'.$t['to'].'</td>
-              <td  width="180">'.
-                'عدد الطلبيات  الكلي: '.$t['orders'].'<br />'.
-                'عدد طلبيات بغداد : '.$t['b_orders'].'<br />'.
-                'عدد طلبيات المحافظات : '.$t['o_orders'].'<br />'.
-              '</td>
-              <td  width="150">التاريخ:'.date('Y-m-d').'</td>
-             </tr>
-            </table>
-            ';
-        }else{
-            $header=
-            '
-             <table >
-             <tr>
-              <td width="180" rowspan="2">
-                <span align="center" style="color:#DC143C;">التسليمات المطلوبه</span><br />
-                <img src="../img/logos/logo.png" height="80px"/>
-              </td>
-              <td ></td>
-              <td ></td>
-             </tr>
-             <tr>
-              <td style="text-align:right;" width="180">'.$t['to'].'</td>
-              <td  width="150">'.
-                'عدد الطلبيات  الكلي: '.$t['orders'].'<br />'.
-              '</td>
-              <td  width="150">التاريخ:'.date('Y-m-d').'</td>
-              <td  width="180">
-                <span style="display:inline-block;width:80px;">الواصل :     &nbsp;&nbsp;&nbsp;</span><span style="color:#A9A9A9">........................</span><br />
-                <span style="display:inline-block;width:80px;">الراجع :  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color:#A9A9A9">........................</span><br />
-                <span style="display:inline-block;width:80px;">المؤجل : &nbsp;&nbsp;&nbsp;</span><span style="color:#A9A9A9">........................</span>
-              </td>
-             </tr>
-            </table>
-            ';
-        }
+        $header= "";
         $this->writeHTML($header);
     }
 }
@@ -505,7 +432,7 @@ $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
 
 
 // set margins
-$pdf->SetMargins(2, 30,10);
+$pdf->SetMargins(5,10,10);
 $pdf->SetHeaderMargin(5);
 $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 // set auto page breaks
@@ -523,6 +450,70 @@ $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 $pdf->AddPage($pageDir, 'A4');
 
 // Persian and English content
+if($reportType ==  2 || $reportType ==  3){
+            $header=
+            '
+             <table>
+             <tr>
+                    <td ></td>
+                    <td width="350"></td>
+                    <td width="300" rowspan="4">
+                      <img src="../img/logos/logo.png" height="100px"/>
+                    </td>
+             </tr>
+             <tr>
+                    <td style="text-align:right;">'.$total['to'].'</td>
+                    <td  width="350" rowspan="4">
+                    '.
+                      'عدد الطلبيات  الكلي: '.$total['orders'].'<br />'.
+                      'عدد طلبيات بغداد : '.$total['b_orders'].'<br />'.
+                      'عدد طلبيات المحافظات : '.$total['o_orders'].'<br />'.
+                    '</td>
+             </tr>
+             <tr>
+                  <td style="text-align:right;">'.
+                    'عدد الطلبيات  الكلي: '.$total['orders'].
+                  '</td>
+             </tr>
+             <tr>
+                    <td style="text-align:right;">التاريخ:'.date('Y-m-d').'</td>
+             </tr>
+            </table>
+            ';
+
+        }else{
+            $header=
+            '
+             <table>
+             <tr>
+                    <td style="text-align:right;">
+                     <span style="color:#DC143C;">التسليمات المطلوبه</span>
+                    </td>
+                    <td width="350"></td>
+                    <td width="300" rowspan="4">
+                      <img src="../img/logos/logo.png" height="100px"/>
+                    </td>
+             </tr>
+             <tr>
+                    <td style="text-align:right;">'.$total['to'].'</td>
+                    <td  width="350" rowspan="3">
+                      <span style="display:inline-block;width:80px;">الواصل :     &nbsp;&nbsp;&nbsp;</span><span style="color:#A9A9A9">........................</span><br />
+                      <span style="display:inline-block;width:80px;">الراجع :  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span style="color:#A9A9A9">........................</span><br />
+                      <span style="display:inline-block;width:80px;">المؤجل : &nbsp;&nbsp;&nbsp;</span><span style="color:#A9A9A9">........................</span>
+                    </td>
+             </tr>
+             <tr>
+                  <td style="text-align:right;">'.
+                    'عدد الطلبيات  الكلي: '.$total['orders'].
+                  '</td>
+             </tr>
+             <tr>
+                    <td style="text-align:right;">التاريخ:'.date('Y-m-d').'</td>
+             </tr>
+            </table>
+            ';
+        }
+
 if($reportType ==  2){
 $htmlpersian = '<table border="1" class="table" cellpadding="'.$space.'">
 			       <thead>
@@ -582,7 +573,7 @@ $htmlpersian = '<table border="1" class="table" cellpadding="'.$space.'">
              //<th width="130">هاتف العميل</th>
 										
 }
-$pdf->WriteHTML($style.$htmlpersian, true, false, true, false, 'J');
+$pdf->WriteHTML($style.$header.$htmlpersian, true, false, true, false, 'J');
 
 // set LTR direction for english translation
 $pdf->setRTL(false);

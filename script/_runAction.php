@@ -16,16 +16,18 @@ if(isset($_REQUEST['ids'])){
   if($action == 'asign' && ( $ac == 1 || $ac == 2 || $ac == 3 || $ac == 5)){
     if($driver >= 1){
       try{
-         $query = "update orders set driver_id=? where id=? and invoice_id=0 and driver_invoice_id=0 and storage_id=0";
+         $query = "update orders set driver_id=? where id=? and driver_invoice_id=0 and (storage_id=0 or order_status_id=4)";
          $record = "call update_or_insert(?,?,?)";
-         $order = "update orders set order_status_id = ? where id =?";
+         $order = "update orders set order_status_id = ? where id =? and (order_status_id = 1 or  order_status_id = 2 or order_status_id = 3 or order_status_id = 8 or order_status_id = 13)";
          $query2 = "insert into tracking (order_id,order_status_id,date,staff_id) values(?,?,?,?)";
          foreach($ids as $v){
            $data = setData($con,$query,[$driver,$v]);
            if($data > 0){
                setData($con,$record,[$driver,$v,3]);
-               setData($con,$order,[3,$v]);
-               setData($con,$query2,[$v,3,date('Y-m-d H:i:s'),$_SESSION['userid']]);
+               $up = setData($con,$order,[3,$v]);
+               if($up) {
+                setData($con,$query2,[$v,3,date('Y-m-d H:i:s'),$_SESSION['userid']]);
+               }
                $success="1";
            }
 
@@ -110,6 +112,36 @@ if(isset($_REQUEST['ids'])){
          $query = "update orders set discount = ? where id = ?";
          foreach($ids as $v){
            $data = setData($con,$query,[$discount,$v]);
+           $success="1";
+         }
+      } catch(PDOException $ex) {
+          $data=["error"=>$ex];
+          $success="0";
+      }
+  }
+  //---update money status
+  if($action == 'returnedToStore9'){
+      try{
+         $query = "update orders set order_status_id = ?, storage_id = ? where id = ?";
+         foreach($ids as $v){
+           $data = setData($con,$query,[9,$_SESSION['user_details']['storage_id'],$v]);
+           $query2 = "insert into tracking (order_id,order_status_id,date,staff_id) values(?,?,?,?)";
+           setData($con,$query2,[$v,9,date('Y-m-d H:i:s'),$_SESSION['userid']]);
+           $success="1";
+         }
+      } catch(PDOException $ex) {
+          $data=["error"=>$ex];
+          $success="0";
+      }
+  }
+  //---update money status
+  if($action == 'returnedToStore6'){
+      try{
+         $query = "update orders set order_status_id = ?, storage_id = ? where id = ?";
+         foreach($ids as $v){
+           $data = setData($con,$query,[6,$_SESSION['user_details']['storage_id'],$v]);
+           $query2 = "insert into tracking (order_id,order_status_id,date,staff_id) values(?,?,?,?)";
+           setData($con,$query2,[$v,6,date('Y-m-d H:i:s'),$_SESSION['userid']]);
            $success="1";
          }
       } catch(PDOException $ex) {

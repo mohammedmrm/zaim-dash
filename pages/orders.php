@@ -1,7 +1,7 @@
 <?php
 if(file_exists("script/_access.php")){
 require_once("script/_access.php");
-access([1,2,3]);
+    access([1,2,3]);
 }
 ?>
 <div class="kt-content  kt-grid__item kt-grid__item--fluid kt-grid kt-grid--hor" id="kt_content">

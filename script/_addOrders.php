@@ -36,7 +36,7 @@ $v->addRuleMessage('unique', 'رقم الوصل مكرر');
 $v->addRule('unique', function($value, $input, $args) {
     $value  = trim($value);
     if($args['0'] == 1){
-        $exists = getData($GLOBALS['con'],"SELECT * FROM orders WHERE order_no='".$value."' and orders.confirm <> 99");
+        $exists = getData($GLOBALS['con'],"SELECT * FROM orders WHERE order_no='".$value."' and orders.confirm <> 99 and date >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)");
       return ! (bool) count($exists);
     }else{
       return (bool) 1;
@@ -407,6 +407,27 @@ $error = [
            'order_address'=>implode($v->errors()->get('order_address'))
            ];
 }
+//---auto update
+// $sql = "select * from auto_update";
+// $res = getData($con,$sql);
+// foreach($res as $val){
+//     ///-- auto status update ---
+//     if($val['active'] == 1){
+//     $auto = "SET @uids := '';
+//               UPDATE
+//               orders SET order_status_id = 4
+//                WHERE order_status_id = 3 and invoice_id = 0 and driver_invoice_id = 0 and confirm=1 and city = '".$val['city_id']."'
+//               DATE(date) < DATE_SUB(CURDATE(), INTERVAL ".$val['days']." DAY) AND ( SELECT @uids := CONCAT_WS(',', id, @uids));
+//               SELECT @uids as ids;";
+//     $ids = getAllUpdatedIds($mysqlicon,$auto);
+//     $ids = explode (",", $ids[0][0]);
+//     $tracking = "insert into tracking (order_id,order_status_id,note,staff_id) values(?,?,?,?)";
+//     foreach($ids as $id){
+//       $addTrack = setData($con,$tracking,[$id,4,'( تم تحديث الطلب تقائياً) ',$_SESSION['userid']]);
+//     }
+//   }
+// }
 //$fcm = sendNotification($tokens,$orders,'طلبات','اضافه مجموعه طلبيات','orderDetails.php');
 echo json_encode([$_REQUEST,'no'=>$no,'c'=>$c-1,'success'=>$success, 'error'=>$error]);
+
 ?>

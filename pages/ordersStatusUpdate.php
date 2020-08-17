@@ -48,7 +48,7 @@ min-height: 100px;
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>الحالة:</label>
-            	<select onchange="getorders()" class="form-control kt-input" id="orderStatus" name="orderStatus[]" data-col-index="7">
+            	<select onchange="" class="form-control kt-input" id="orderStatus" name="orderStatus[]" data-col-index="7">
             		<option value="">Select</option>
             	</select>
             </div>
@@ -88,7 +88,7 @@ min-height: 100px;
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>المندوب:</label>
-                <select id="driver" name="driver" data-show-subtext="true" data-live-search="true" onchange="getorders()" class="form-control kt-input" data-col-index="2">
+                <select id="driver" name="driver" data-show-subtext="true" data-live-search="true" onchange="" class="form-control kt-input" data-col-index="2">
             	</select>
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
@@ -109,8 +109,6 @@ min-height: 100px;
   				<input onchange="" type="text" class="form-control kt-input" name="end"  id="end" placeholder="الى" data-col-index="5">
           	</div>
             </div>
-          <div class="kt-separator kt-separator--border-dashed kt-separator--space-md"></div>
-          </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>حالة التاكيد من الفروع</label>
                 <select id="confirm" name="confirm" onchange="" class="selectpicker form-control kt-input" data-col-index="2">
@@ -121,8 +119,9 @@ min-height: 100px;
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>.</label> <br />
-            	<input type="button" class="btn btn-success" value="بحث" id="updateStatues"  onclick="getorders()"/>
+            	<input type="button" class="btn btn-warning" value="بحث" id="updateStatues"  onclick="getorders()"/>
             </div>
+          </div>
           </fieldset>
           <div class="row kt-margin-b-20">
             <div class="col-lg-3 kt-margin-b-10-tablet-and-mobile">
@@ -139,7 +138,7 @@ min-height: 100px;
               </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>تحديث الحاله الى:</label>
-            	<select st='st'  class="form-control kt-input" onchange="setOrdersStatus()" id="setOrderStatus" name="setOrderStatus" data-col-index="7">
+            	<select st='st' data-size="5" class="form-control kt-input" onchange="setOrdersStatus()" id="setOrderStatus" name="setOrderStatus" data-col-index="7">
             		<option value="">Select</option>
             	</select>
             </div>
@@ -180,7 +179,28 @@ min-height: 100px;
 			</ul>
         <input type="hidden" id="p" name="p" value="<?php if(!empty($_GET['p'])){ echo $_GET['p'];}else{ echo 1;}?>"/>
 		</nav>
-     	</div>
+          <?php if($_SESSION['role'] == 1){?>
+          <fieldset><legend>تحديث تلقائي</legend>
+          <div class="row kt-margin-b-20" id="autoUpdateDiv">
+            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
+            	<label>الطلبيات التي مضى عليها</label>
+            	<input id="days" name="days" value="7"  type="number" min="1" step="1" class="form-control" placeholder="" data-col-index="0">
+                <label>يوم</label>
+            </div>
+            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
+            	<label>المحافظة:</label>
+            	<select id="auto_city" onchange="" data-size="5"  class="form-control selectpicker" data-live-search="ture" data-col-index="2">
+            		<option value="">Select</option>
+                </select>
+            </div>
+            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
+            	<label>.</label><br />
+            	<input onclick="autoUpdate()"  value="تحديث الى واصل"  type="button"  class="btn btn-info" placeholder="" >
+            </div>
+          </div>
+          </fieldset>
+          <?php } ?>
+        </div>
         </div>
         </form>
 		<!--end: Datatable -->
@@ -370,7 +390,30 @@ function getorderspage(page){
 function updateTown(){
    getTowns($('#e_town'),$('#e_city').val());
 }
-
+function autoUpdate(){
+      $.ajax({
+        url:"script/_autoUpdate.php",
+        type:"POST",
+        data:{days: $("#days").val(),city:$("#auto_city").val()},
+        beforeSend:function(){
+            $("#autoUpdateDiv").addClass('loading');
+        },
+        success:function(res){
+         $("#autoUpdateDiv").removeClass('loading');
+         if(res.success == 1){
+           Toast.success('تم تحديث ما بذمه المندوبين الى واصل');
+           getorders();
+         }else{
+           Toast.warning('خطأ');
+         }
+         console.log(res);
+        },
+        error:function(e){
+          $("#autoUpdateDiv").removeClass('loading');
+          console.log(e);
+        }
+      });
+}
 $( document ).ready(function(){
 
 $("#allselector").change(function() {
@@ -381,6 +424,7 @@ $("#allselector").change(function() {
       $('input[name="id\[\]"]').attr('checked', true);;
     }
 });
+
 $('#start').datepicker({
     format: "yyyy-mm-dd",
     showMeridian: true,
@@ -405,6 +449,7 @@ getorderStatus($("#orderStatus"),1);
 getorderStatus($("#status_action"),1);
 getorderStatus($("#setOrderStatus"),1);
 getCities($("#city"));
+getCities($("#auto_city"));
 
 });
 </script>

@@ -27,4 +27,21 @@ function setDataWithLastID($db,$query,$parm = []) {
   $rows = $db->lastInsertId();
   return $rows;
 }
+$mysqlicon = new mysqli("localhost", "root", "", "nahar");
+function getAllUpdatedIds($con,$query) {
+$data=[]; 
+if (mysqli_multi_query($con, $query)) {
+  do {
+    // Store first result set
+    if ($result = mysqli_store_result($con)) {
+      while ($row = mysqli_fetch_row($result)) {
+        $data[] = $row;
+      }
+      mysqli_free_result($result);
+    }
+     //Prepare next result set
+  } while (mysqli_next_result($con));
+}
+return $data;
+}
 ?>

@@ -44,7 +44,7 @@ legend
 	<div class="kt-portlet__head">
 		<div class="kt-portlet__head-label">
 			<h1 class="text-danger kt-portlet__head-title">
-			  <b>الادخال والاخراج المخزني</b>
+			  <b>تأكيد طلبيات العملاء</b>
 			</h1>
 		</div>
 	</div>
@@ -56,14 +56,8 @@ legend
           <div class="row kt-margin-b-20">
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>الفرع:</label>
-            	<select onchange="getclient();getAllDrivers($('#driver'),$(this).val())" class="form-control selectpicker" id="branch" name="branch" data-live-search="true" data-col-index="6">
+            	<select onchange="getclient()" class="form-control kt-input" id="branch" name="branch" data-col-index="6">
             	</select>
-            </div>
-            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>الفرع المرسل له:</label>
-            	<select id="to_branch" name="to_branch" onchange="getclient()" class="form-control selectpicker" data-live-search="true" data-col-index="2">
-            		<option value="">Select</option>
-                </select>
             </div>
            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>العميل:</label>
@@ -74,6 +68,12 @@ legend
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>الصفحة (البيج):</label>
             	<select onchange="getorders()" data-show-subtext="true" data-live-search="true"  class="selectpicker form-control kt-input" id="store" name="store" data-col-index="7">
+            		<option value="">Select</option>
+            	</select>
+            </div>
+            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
+            	<label>الحالة:</label>
+            	<select onchange="getorders()" class="form-control kt-input" id="orderStatus" name="orderStatus" data-col-index="7">
             		<option value="">Select</option>
             	</select>
             </div>
@@ -94,59 +94,28 @@ legend
             	<input id="order_no" name="order_no" onkeyup="getorders()" type="text" class="form-control kt-input" placeholder="" data-col-index="0">
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>الحالة:</label>
-            	<select onchange="getorders()" title="اختر الحالة" class="form-control selectpicker" id="orderStatus" name="orderStatus[]" multiple data-col-index="7">
-            		<option value="9">راجع كلي</option>
-            		<option value="6">راجع جزئي</option>
-            		<option value="5">استبدال</option>
-            	</select>
+            	<label>اسم او هاتف المستلم:</label>
+            	<input name="customer" onkeyup="getorders()" type="text" class="form-control kt-input" placeholder="" data-col-index="1">
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
             	<label>المحافظة المرسل لها:</label>
-            	<select id="city" name="city" onchange="getorders()" class="form-control kt-input" data-live-search="true" data-col-index="2">
+            	<select id="city" name="city" onchange="getorders()" class="form-control kt-input" data-col-index="2">
             		<option value="">Select</option>
                 </select>
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>المندوب</label>
-                <select id="driver" name="driver" onchange="getorders()" class="border-success form-control selectpicker" data-live-search="true" data-col-index="2">
-
+            	<label>الفرع المرسل له:</label>
+            	<select id="to_branch" name="to_branch" onchange="getclient()" class="form-control kt-input" data-col-index="2">
+            		<option value="">Select</option>
                 </select>
             </div>
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>المخزن</label>
-                <select id="storage" name="storage" onchange="getorders()" class="border-success form-control selectpicker" data-col-index="2">
-                </select>
-            </div>
-            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>حالة الكشف العميل</label>
-                <select id="invoice" name="invoice" onchange="getorders()" class="selectpicker form-control kt-input" data-col-index="2">
+            	<label>حالة تسليم المبلغ للعميل:</label>
+                <select name="money_status" onchange="getorders()" class="form-control kt-input" data-col-index="2">
             		<option value="">... اختر...</option>
-            		<option value="1">طلبات بدون كشف</option>
-            		<option value="2">طلبات بكشف</option>
-                </select>
-            </div>
-            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>حالة الكشف المخزن</label>
-                <select id="storage_invoice" name="storage_invoice" onchange="getorders()" class="selectpicker form-control kt-input" data-col-index="2">
-            		<option value="1">طلبات بدون كشف</option>
-            		<option value="2">طلبات بكشف</option>
-                    <option value="">الكل</option>
-
-                </select>
-            </div>
-            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>.</label><br />
-            	<input onclick="makeInvoice()" type="button" class="btn btn-danger" value="انشاء كشف عميل">
-            </div>
-            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>.</label><br />
-            	<input onclick="makeStorageInvoice()" type="button" class="btn btn-info" value="انشاء كشف مخزن">
-            </div>
-            <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<label>.</label><br />
-            	<input onclick="downloadReport()" type="button" class="btn btn-success" value="تحميل تقرير">
-            </div>
+            		<option value="1">تم تسليم المبلغ</option>
+            		<option value="0">لم يتم تسليم المبلغ</option>
+                </select></div>
           <div class="kt-separator kt-separator--border-dashed kt-separator--space-md"></div>
           </div>
           </fieldset>
@@ -165,26 +134,24 @@ legend
               		<option value="250">250</option>
               	</select>
               </div>
-              <div class="col-lg-3 kt-margin-b-10-tablet-and-mobile">
-               <br /><h1>عدد الطلبيات:<span id="orders_count"></span></h1>
-              </div>
             </div>
 
-        <table class="table table-striped table-bordered table-hover table-checkable responsive nowrap" style="white-space: nowrap; width: 100%;" id="tb-orders">
+        <table class="table table-striped table-bordered table-hover table-checkable responsive no-wrap" id="tb-orders">
 			       <thead>
 	  						<tr>
 										<th><input  id="allselector" type="checkbox"><span></span></th>
-                                        <th>تاكيد</th>
-										<th>رقم الوصل</th>
-										<th>الحالة</th>
-										<th>المندوب</th>
-										<th>المخزن</th>
-										<th>اسم و هاتف العميل</th>
-										<th>رقم هاتف المستلم</th>
+										<th>تاكيد</th>
+										<th>رقم الشحنه</th>
+                                        <th>رقم الوصل</th>
+										<th width="150px">اسم و هاتف العميل</th>
+										<th width="150px">رقم هاتف المستلم</th>
 										<th>عنوان المستلم</th>
-                                        <th>التاريخ</th>
-                                        <th>مبلغ الوصل</th>
-										<th>المبلغ المستلم</th>
+										<th>مبلغ الوصل</th>
+                                        <th>مع التوصيل</th>
+										<th>مبلغ التوصيل</th>
+                                        <th>الخصم</th>
+                                        <th>حالة المبلغ</th>
+                                        <th width="100px">التاريخ</th>
 						   </tr>
       	            </thead>
                             <tbody id="ordersTable">
@@ -193,17 +160,17 @@ legend
 	                <tr>
 										<th></th>
                                         <th>تاكيد</th>
+										<th>رقم الشحنه</th>
 										<th>رقم الوصل</th>
-										<th>الحالة</th>
-										<th>المندوب</th>
-										<th>المخزن</th>
-										<th>اسم و هاتف العميل</th>
-										<th>رقم هاتف المستلم</th>
+										<th width="150px">اسم و هاتف العميل</th>
+										<th width="150px">رقم هاتف المستلم</th>
 										<th>عنوان المستلم</th>
-                                        <th>التاريخ</th>
-                                        <th>مبلغ الوصل</th>
-										<th>المبلغ المستلم</th>
-
+										<th>مبلغ الوصل</th>
+                                        <th>مع التوصيل</th>
+										<th>مبلغ التوصيل</th>
+                                        <th>الخصم</th>
+                                        <th>حالة المبلغ</th>
+                                        <th width="100px">التاريخ</th>
 				   </tr>
 	           </tfoot>
 		</table>
@@ -212,7 +179,6 @@ legend
 			<ul class="pagination" id="pagination">
 
 			</ul>
-        <input type="hidden" name=""
         <input type="hidden" id="p" name="p" value="<?php if(!empty($_GET['p'])){ echo $_GET['p'];}else{ echo 1;}?>"/>
 		</nav>
      	</div>
@@ -220,34 +186,30 @@ legend
           <fieldset><legend>التحديثات</legend>
           <div class="row kt-margin-b-20">
             <div class="col-lg-2 kt-margin-b-10-tablet-and-mobile">
-            	<input type="button" onclick="setOrdersStorage()" class="btn btn-info btn-lg" value="ادخال المحدد للمخزن" />
+            	<input type="button" onclick="confirmOrders()" class="btn btn-info btn-lg" value="تأكيد كل المحدد" />
             </div>
           </div>
           </fieldset>
         </form>
 		<!--end: Datatable -->
 	</div>
-</div>
-</div>
-<!-- end:: Content -->
-</div>
+</div>	</div>
+<!-- end:: Content -->				</div>
 <!--begin::Page Vendors(used by this page) -->
 <script src="assets/vendors/custom/datatables/datatables.bundle.js" type="text/javascript"></script>
 <!--begin::Page Scripts(used by this page) -->
 <script src="assets/js/demo1/pages/components/datatables/extensions/responsive.js" type="text/javascript"></script>
+<script src="js/scanner-jquery.js" type="text/javascript"></script>
 <script src="js/getBraches.js" type="text/javascript"></script>
 <script src="js/getClients.js" type="text/javascript"></script>
 <script src="js/getStores.js" type="text/javascript"></script>
 <script src="js/getorderStatus.js" type="text/javascript"></script>
 <script src="js/getAllDrivers.js" type="text/javascript"></script>
 <script src="js/getCities.js" type="text/javascript"></script>
-<script src="js/getStorage.js" type="text/javascript"></script>
 <script type="text/javascript">
-getAllDrivers($("#driver"));
-getStorage($("#storage"));
 function getorders(){
 $.ajax({
-  url:"script/_getReturnedOrders.php",
+  url:"script/_getOrdersSendByClient.php",
   type:"POST",
   data:$("#ordertabledata").serialize(),
   beforeSend:function(){
@@ -255,11 +217,10 @@ $.ajax({
   },
   success:function(res){
    console.log(res);
-   $("#tb-orders").removeClass("loading");
+   //saveEventDataLocally(res)
    $("#tb-orders").DataTable().destroy();
    $('#ordersTable').html("");
    $("#pagination").html("");
-   $("#orders_count").text(res.total[0].orders);
    if(res.pages >= 1){
      if(res.page > 1){
          $("#pagination").append(
@@ -302,37 +263,26 @@ $.ajax({
          );
      }
    }
-
    $.each(res.data,function(){
-   if(this.storage_id == 0){
-     btn ='<button type="button" class="btn btn-icon text-danger btn-lg" onclick="setOrderStorage('+this.id+')"><span class="flaticon-download"></span></button>';
-   }else if(this.storage_id != 0){
-     btn ='<button type="button" class="btn btn-icon text-success btn-lg" onclick="setOrderOutStorage('+this.id+')"><span class="flaticon-upload"></span></button>';
-     btn +='<button type="button" class="btn btn-icon text-info btn-lg" onclick="setOrderResend('+this.id+')"><span class="flaticon2-refresh"></span></button>';
-   }else{
-     btn ="";
-   }
-   if(this.storage_id == 1 ){
-     btn +=  '<button type="button" class="btn btn-icon text-warning btn-lg" onclick="setOrderOutToClient('+this.id+')"><span class="flaticon-reply"></span></button>';
-   }
       $('#ordersTable').append(
        '<tr>'+
             '<td>'+
                 '<input class="" type="checkbox" name="id[]" rowid="'+this.id+'">'+
             '</td>'+
             '<td width="100px;">'+
-                btn+
+                '<button type="button" class="btn btn-icon text-success" onclick="confirmOrder('+this.id+')"><span class="flaticon-like"></span></button>'+
             '</td>'+
+            '<td>'+this.id+'</td>'+
             '<td>'+this.order_no+'</td>'+
-            '<td>'+this.status_name+'<br />('+this.storage_status+')</td>'+
-            '<td>'+this.driver_name+'</td>'+
-            '<td>'+this.storage_status+'</td>'+
-            '<td>'+this.store_name+'<br />'+phone_format(this.client_phone)+'</td>'+
+            '<td>'+this.client_name+'<br />'+phone_format(this.client_phone)+'</td>'+
             '<td>'+phone_format(this.customer_phone)+'</td>'+
             '<td>'+this.city+'/'+this.town+'<br />'+this.address+'</td>'+
-            '<td>'+this.date+'</td>'+
             '<td>'+formatMoney(this.price)+'</td>'+
-            '<td>'+formatMoney(this.new_price)+'</td>'+
+            '<td>'+this.with_dev+'</td>'+
+            '<td>'+formatMoney(this.dev_price)+'</td>'+
+            '<td>'+formatMoney(this.discount)+'</td>'+
+            '<td>'+this.money_status+'</td>'+
+            '<td>'+this.date+'</td>'+
          '</tr>');
      });
 
@@ -341,7 +291,6 @@ $.ajax({
         "sLengthMenu": "عرض_MENU_سجل",
         "sSearch": "بحث:"
       },
-       "scrollX": true,
        "bPaginate": false,
        "bLengthChange": false,
        "bFilter": false,
@@ -358,11 +307,6 @@ $.ajax({
 function getorderspage(page){
     $("#p").val(page);
     getorders();
-}
-function downloadReport(){
-var domain = "script/downloadStorageReport.php?";
-var data = $("#ordertabledata").serialize()+'&pageDir=1&reportType=3&space=5&fontSize=12';
-window.open(domain + data, '_blank');
 }
 getClients($("#client"));
 function getclient(){
@@ -401,8 +345,19 @@ $('#end').datepicker({
 });
 getBraches($("#branch"));
 getBraches($("#to_branch"));
+getorderStatus($("#orderStatus"));
+getorderStatus($("#status_action"));
 getCities($("#city"));
 
+});
+$(document).scannerDetection({
+	timeBeforeScanTest: 200, // wait for the next character for upto 200ms
+	startChar: [120], // Prefix character for the cabled scanner (OPL6845R)
+	endChar: [13], // be sure the scan is complete if key 13 (enter) is detected
+	avgTimeByChar: 40, // it's not a barcode if a character takes longer than 40ms
+	onComplete: function(barcode, qty){
+     confirmOrder(Number(barcode));
+    } // main callback function
 });
 function disable(){
   if($("#action").val() == 'asign'){
@@ -441,7 +396,7 @@ function disable(){
    console.log($("#action").val());
 }
 
-function setOrdersStorage(){
+function confirmOrders(){
      $('input[name="ids\[\]"]', form).remove();
       var form = $('#ordertabledata');
       $.each($('input[name="id\[\]"]:checked'), function(){
@@ -455,14 +410,14 @@ function setOrdersStorage(){
       });
 
       $.ajax({
-        url:"script/_setOrdersStorage.php",
+        url:"script/_confirmClientOrders.php",
         type:"POST",
         data:$("#ordertabledata").serialize(),
         success:function(res){
           getorders();
           console.log(res);
           if(res.success == 1){
-            Toast.success("تم الادخال الى المخزن");
+            Toast.success("تم تأكيد الطلبيات بنجاح");
           }else{
             Toast.warning("حدث خطاء! حاول مرة اخرى. تاكدد من تحديد عنصر واحد على اقل تقدير");
           }
@@ -477,146 +432,14 @@ function setOrdersStorage(){
       //$('input[name="id\[\]"]', form).remove();
 }
 
-function setOrderStorage(id){
+function confirmOrder(id){
         $.ajax({
-        url:"script/_setOrderStorage.php",
+        url:"script/_confirmClientOrder.php",
         type:"POST",
         data:{id:id},
         success:function(res){
          if(res.success == 1){
-           Toast.success('تم الادخال الى المخزن');
-           getorders();
-         }else{
-           Toast.warning(res.msg);
-         }
-         console.log(res);
-        },
-        error:function(e){
-          console.log(e);
-        }
-      });
-}
-function setOrderOutToClient(id){
-  if(confirm("هل انت متاكد من ارجاع الطلب للعميل؟")){
-        $.ajax({
-        url:"script/_setOrderOutToClient.php",
-        type:"POST",
-        data:{id:id},
-        success:function(res){
-         if(res.success == 1){
-           Toast.success('تم ارجاع الطلب للعميل');
-           getorders();
-         }else{
-           Toast.warning(res.msg);
-         }
-         console.log(res);
-        },
-        error:function(e){
-          console.log(e);
-        }
-      });
-  }
-}
-
-function setOrderResend(id){
-  if(confirm("هل انت متاكد من اعاده ارسال الطلب")){
-        $.ajax({
-        url:"script/_setOrderResend.php",
-        type:"POST",
-        data:{id:id},
-        success:function(res){
-         if(res.success == 1){
-           Toast.success('تم اخراج واعادة ارسال الطلب');
-           getorders();
-         }else{
-           Toast.warning(res.msg);
-         }
-         console.log(res);
-        },
-        error:function(e){
-          console.log(e);
-        }
-      });
-  }
-}
-function makeInvoice() {
-  if($("#storage").val() > 0 ){
-    if(Number($("#store").val()) > 0){
-      if(Number($("#invoice").val()) == 1){
-              $.ajax({
-                url:"script/_makeInvoiceByStorageStaff.php",
-                data: $("#ordertabledata").serialize(),
-                beforeSend:function(){
-                 $("#ordertabledata").addClass("loading");
-                },
-                success:function(res){
-                  $("#ordertabledata").removeClass("loading");
-                  if(res.success == 1){
-                    getorders();
-                    var d = new Date();
-                    window.open('invoice/'+res.invoice, '_blank');
-                  }else{
-                    Toast.warning("خطأ");
-                    Toast.warning(res.msg);
-                  }
-                  console.log(res);
-                },
-                error:function(e){
-                  $("#ordertabledata").removeClass("loading");
-                  console.log(e);
-                }
-              });
-      }else{
-        Toast.warning("يحب تحديد الطلبات بدون كشف");
-      }
-    }else{
-      Toast.warning("يحب تحديد الصفحه");
-    }
-  }else{
-     Toast.warning("يجب تحديد المخزن");
-  }
-}
-function makeStorageInvoice() {
-  if($("#storage").val() > 0 ){
-    if(Number($("#storage_invoice").val()) == 1){
-              $.ajax({
-                url:"script/_makeStorageInvoiceByStorageStaff.php",
-                data: $("#ordertabledata").serialize(),
-                beforeSend:function(){
-                 $("#ordertabledata").addClass("loading");
-                },
-                success:function(res){
-                  $("#ordertabledata").removeClass("loading");
-                  if(res.success == 1){
-                    getorders();
-                    var d = new Date();
-                    window.open('storage_invoice/'+res.invoice, '_blank');
-                  }else{
-                    Toast.warning("خطأ");
-                    Toast.warning(res.msg);
-                  }
-                  console.log(res);
-                },
-                error:function(e){
-                  $("#ordertabledata").removeClass("loading");
-                  console.log(e);
-                }
-              });
-      }else{
-        Toast.warning("يحب تحديد الطلبات بدون كشف مخزن");
-      }
-  }else{
-     Toast.warning("يجب تحديد المخزن");
-  }
-}
-function setOrderOutStorage(id){
-        $.ajax({
-        url:"script/_setOrderOutStorage.php",
-        type:"POST",
-        data:{id:id},
-        success:function(res){
-         if(res.success == 1){
-           Toast.success('تم الادخال الى المخزن');
+           Toast.success('تم تأكيد الطلب');
            getorders();
          }else{
            Toast.warning(res.msg);
@@ -630,3 +453,4 @@ function setOrderOutStorage(id){
 }
 </script>
 <script src="./assets/js/demo1/pages/components/forms/widgets/bootstrap-datetimepicker.js" type="text/javascript"></script>
+ 

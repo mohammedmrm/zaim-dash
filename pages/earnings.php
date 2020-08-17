@@ -38,7 +38,7 @@ access([1,2]);
 
 
 
-                <div class="col-lg-3 offset-lg-3 kt-margin-b-10-tablet-and-mobile">
+                <div class="col-lg-3 offset-lg-2 kt-margin-b-10-tablet-and-mobile">
                 <label>الفترة الزمنية :</label>
                 <div class="input-daterange input-group" id="kt_datepicker">
       				<input value="<?php echo date('Y-m-d',strtotime(date('Y-m-d'). ' - 7 day'));?>" onchange="updateDash()" type="text" class="form-control kt-input" name="start" id="start" placeholder="من" data-col-index="5">
@@ -49,12 +49,13 @@ access([1,2]);
               	</div>
                 </div>
                 <div class="col-lg-3 kt-margin-b-10-tablet-and-mobile"></div>
-                <div class="col-lg-3 kt-margin-b-10-tablet-and-mobile">
-                    <label>الفترة الزمنية: <label class="" id="total_peroid"></label></label><br />
-                    <label>مجموع الارباح: <label class="text-success" id="total_earnings"></label></label><br />
-                    <label>مجموع صافي العملاء: <label class="text-danger" id="total_client_price"></label></label><br />
-                    <label>مجموع الخصم: <label class="text-warning" id="total_discount"></label></label><br />
-                    <label>عدد الطلبيات: <label class="text-info" id="total_orders"></label></label><br />
+                <div class="col-lg-4 kt-margin-b-10-tablet-and-mobile">
+                    <label class="h4">الفترة الزمنية: <label class="" id="total_peroid"></label></label><br />
+                    <label class="h4">مجموع الارباح: <label class="text-success" id="total_earnings"></label></label><br />
+                    <label class="h4">مجموع صافي العملاء: <label class="text-danger" id="total_client_price"></label></label><br />
+                    <label class="h4">مجموع الخصم: <label class="text-warning" id="total_discount"></label></label><br />
+                    <label class="h4">في ذمه الشركه: <label class="text-info" id="total_with_company"></label></label><br />
+                    <label class="h4">عدد الطلبيات: <label class="text-info" id="total_orders"></label></label><br />
                 </div>
 
      </div>
@@ -71,6 +72,7 @@ access([1,2]);
 								<th>الدخل الكلي</th>
 								<th>صافي التوصيل</th>
 								<th>الصافي للعميل</th>
+								<th>في ذمه الشركه</th>
 		  					</tr>
       	            </thead>
                     <tbody id="getEarningsTable">
@@ -86,6 +88,7 @@ access([1,2]);
 								<th>الدخل الكلي</th>
 								<th>صافي التوصيل</th>
 								<th>الصافي للعميل</th>
+								<th>في ذمه الشركه</th>
 		  					</tr>
 	              </tfoot>
 		</table>
@@ -135,6 +138,7 @@ $.ajax({
    $("#total_peroid").text(res.total[0].start+" || "+res.total[0].end);
    $("#total_earnings").text(formatMoney(res.total[0].earnings));
    $("#total_discount").text(formatMoney(res.total[0].discount));
+   $("#total_with_company").text(formatMoney(res.total[0].with_company));
    $("#total_client_price").text(formatMoney(res.total[0].client_price));
    $("#total_orders").text(formatMoney(res.total[0].orders));
    $.each(res.data,function(){
@@ -149,21 +153,10 @@ $.ajax({
             '<td>'+formatMoney(this.income)+'</td>'+
             '<td class="text-success">'+formatMoney(this.earnings)+'</td>'+
             '<td class="text-danger">'+formatMoney(this.client_price)+'</td>'+
+            '<td class="text-danger">'+formatMoney(this.with_company)+'</td>'+
        '</tr>');
      });
      var myTable= $('#tb-getEarnings').DataTable({
-     columns:[
-    //"dummy" configuration
-        { visible: true }, //col 1
-        { visible: true }, //col 2
-        { visible: true }, //col 3
-        { visible: true }, //col 4
-        { visible: true }, //col 5
-        { visible: true }, //col 6
-        { visible: true }, //col 7
-        { visible: true }, //col 8
-        { visible: true }, //col 9
-        ],
         className: 'select-checkbox',
         targets: 0,
         "oLanguage": {
